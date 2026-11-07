@@ -1,6 +1,6 @@
 {
   "name": "regle-et-compas",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Jeu d'énigmes de constructions géométriques à la règle et au compas, d'après Euclide.",
   "private": true,
   "type": "module",

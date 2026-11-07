@@ -162,6 +162,12 @@ h1 { margin: 3px 0 0; font: 400 25px/1.1 var(--f-display); text-wrap: balance; }
   padding: 14px 4px; border: 0; border-bottom: 1px solid var(--rule); background: transparent; text-align: left; cursor: pointer;
 }
 .lv:disabled { cursor: default; opacity: .45; }
+.lv-ch { padding: 22px 4px 10px; border-bottom: 1px solid var(--rule); }
+.lv-ch:first-child { padding-top: 14px; }
+.lv-ch-num { display: block; font: 600 11px/1.3 var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: var(--red); }
+.lv-ch-title { display: block; margin-top: 4px; font: 400 24px/1.15 var(--f-display); }
+.lv-ch-idea { display: block; margin-top: 4px; font: italic 400 14.5px/1.4 var(--f-text); color: var(--muted); }
+.lv-ch[data-locked="1"] .lv-ch-num, .lv-ch[data-locked="1"] .lv-ch-title { opacity: .55; }
 .lv-prop { font: 400 21px/1 var(--f-display); }
 .lv[aria-current="true"] .lv-prop { color: var(--blue); }
 .lv-title { display: block; font: 400 17px/1.25 var(--f-text); }

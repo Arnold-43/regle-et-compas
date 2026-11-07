@@ -27,6 +27,7 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 |---|---|
 | `src/engine.js` | Moteur géométrique **pur** (aucun DOM, tourne sous Node) : objets, intersections, rejeu d'une construction, vérification, indices. |
 | `src/levels.js` | Les niveaux, sous forme de données + petites fonctions (format documenté en tête de fichier). L'objectif vient du catalogue. |
+| `src/chapters.js` | Chapitres (une idée chacun, défi optionnel) et règles d'ouverture. Pur, testé dans `tests/chapters.test.js`. |
 | `src/catalog.js` | Catalogue des figures remarquables (médiatrice, tangente, carré…) : nom + fonction pure qui calcule la cible. Pur. |
 | `src/game.js` | Interface : canvas, toucher (loupe, pincer, glisser), règles du jeu, progression (localStorage), version. |
 | `src/index.html`, `src/styles.css` | Squelette et styles (jetons de couleur lus par le canvas). |
@@ -38,6 +39,8 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 | `tools/figures.js` | Figures de départ du générateur et association des rôles du catalogue. |
 | `tools/generate.js` | Générateur de candidats : JSON dans `tools/out/` (non versionné) + résumé trié par score. |
 | `tests/levels.test.js` | Garde-fou de chaque niveau. |
+| `tests/chapters.test.js` | Garde-fou des chapitres et de la progression enregistrée (aucune perte en changeant de version). |
+| `docs/chapitres.md` | Carte des chapitres et candidats de niveaux retenus (avec leurs mesures). |
 | `tests/tools.test.js` | Garde-fou de l'outillage (incrémental ≡ build, solutions recoupées par force brute, fumée du générateur). |
 | `scripts/build.js` | Copie `src/` vers `dist/`, injecte la version, nomme le cache du service worker. |
 | `.github/workflows/deploy.yml` | Tests sur chaque PR ; sur `main` : tests → build → GitHub Pages. |
@@ -57,6 +60,12 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 - `aux` : points construits servant d'appui, hors de la cible (min et max sur les solutions minimales).
 - `score = 1·min + 0,75·aux + 1·(−log2 goulotLibre) − 0,5·log2(min(nbSolutions, 4))` (constantes `POIDS`, `PLAFOND_SOLUTIONS`). Coup guidé = tracé d'un objet de la cible (droite, cercle), visible en pointillés ; créer un point cible ne l'est pas, mais le joueur vise le point : la part de bons coups se calcule alors parmi les tracés qui passent par un point cible manquant. Provisoire : contrôle de cohérence sur les niveaux existants, pas un calage.
 
+### Chapitres (`src/chapters.js`)
+- Un chapitre : `id`, `numero`, `titre`, `idee` (une phrase), `niveaux` (requis, dans l'ordre), `defi` (optionnel, en dernier).
+- Le chapitre suivant s'ouvre quand les niveaux requis du précédent sont réussis ; le défi n'est jamais requis. Dans un chapitre, chaque niveau requis ouvre le suivant ; le défi s'ouvre avec le dernier niveau requis.
+- La progression est rangée par **id de niveau** (`localStorage`, clé `regle-compas-v1`) : ne jamais changer l'id d'un niveau publié.
+- En-tête : « Euclide · Livre I · Proposition N » si le niveau a un `prop`, sinon « Chapitre 2 · Les angles · 3/4 ».
+
 ## Règles non négociables
 
 1. **Tout niveau doit passer `npm test`** : chaque référence le résout, le minimum `par` est exact (solveur), aucune solution plus courte, suivre les indices mène à la solution au minimum.
@@ -69,7 +78,7 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 
 ## Conventions
 
-- **Version** : semver dans `package.json`. Patch = correction, minor = nouveaux niveaux ou fonctionnalité. Monter la version dans chaque PR qui change le jeu. Le numéro de build et le commit sont ajoutés automatiquement ; ils s'affichent en bas de l'écran « Livre I ».
+- **Version** : semver dans `package.json`. Patch = correction, minor = nouveaux niveaux ou fonctionnalité. Monter la version dans chaque PR qui change le jeu. Le numéro de build et le commit sont ajoutés automatiquement ; ils s'affichent en bas de l'écran « Chapitres ».
 - **Visuel** : palette d'Oliver Byrne (encre, rouge, bleu, jaune) en jetons CSS dans `styles.css`, thèmes clair et sombre. Convention de dessin technique : figure donnée en trait fort (encre), constructions en trait fin (graphite), objectif en pointillés bleus, indices en rouge.
 - **Textes** : phrases courtes et simples, voix active, pas de jargon technique côté joueur.
 - **Workflow** : une branche et une PR par changement ; décrire dans la PR ce qui change pour le joueur. Merge sur `main` = publication = mise à jour sur le téléphone à l'ouverture suivante.
@@ -78,7 +87,7 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 
 1. ~~Générateur de niveaux~~ (fait : `tools/generate.js`, catalogue `src/catalog.js`). Reste : étendre le catalogue, ajouter des figures de départ, transformer un candidat choisi en niveau (textes, `refs`, `celebrate`).
 2. ~~Mesures de difficulté~~ (faites : `tools/metrics.js`). Reste : le goulot tombe presque toujours au dernier coup (guidé par l'objectif en pointillés), à repenser ; caler les `POIDS` sur des données de jeu (temps, annulations, indices, abandons).
-3. **Chapitres** : 10 à 12 chapitres de 12 à 15 niveaux, une idée par chapitre (outil ou notion), courbe en dents de scie (introduction → montée → respiration → défi final optionnel). Sources : Euclide Livres I, III, IV, VI + variantes (compas seul, outillage restreint, autre figure de départ).
+3. **Chapitres** : 10 à 12 chapitres de 12 à 15 niveaux, **une seule idée par chapitre** (outil ou notion), courbe en dents de scie (introduction → montée → respiration → défi final optionnel). Sources : Euclide Livres I, III, IV, VI + variantes (compas seul, outillage restreint, autre figure de départ). Fait : ch. 1 « Les bases » et ch. 2 « Les angles » (0.2.0). Carte des ch. 3 à 6 et candidats : `docs/chapitres.md`.
 4. **Télémétrie de jeu** anonyme pour calibrer la difficulté.
 5. **Play Store** : emballer le même code avec Capacitor.
 
