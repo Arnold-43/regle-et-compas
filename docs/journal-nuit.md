@@ -16,7 +16,7 @@ Objectif : passer de 10 à environ 55 niveaux dans une seule PR (version 0.3.0),
 - [x] Chapitre 4 « Sans médiatrice »
 - [x] Chapitre 5 « Centres et tangentes »
 - [x] Chapitre 6 « Carrés et partages »
-- [ ] Description finale de la PR, docs/chapitres.md, CLAUDE.md
+- [x] Description finale de la PR, docs/chapitres.md, CLAUDE.md
 
 ## Fait
 
@@ -35,6 +35,8 @@ Objectif : passer de 10 à environ 55 niveaux dans une seule PR (version 0.3.0),
 
 ## Temps de calcul
 
+- `npm test` : 307 tests en 0,47 s. `npm run test:complet` (exhaustif, 55 niveaux) : 93 tests en 179 s en local.
+
 - Certification des 46 premières fiches : 194 s au total. La plus longue : `cp-partage-3-b` (partage en 3 dans l'angle, règle et compas, 5 coups) 174 s ; puis `ct-deux-tangentes` 17 s, `cp-parallelogramme-b` en RC 15 s ; toutes les autres < 1 s.
 
 - Certification des 10 niveaux écrits : 0,15 s au total.
@@ -44,3 +46,9 @@ Objectif : passer de 10 à environ 55 niveaux dans une seule PR (version 0.3.0),
 - La branche de session `claude/dazzling-fermat-vysncs` porte encore les commits d'avant le squash
   de la PR 3 : la repartir de `main` aurait demandé un push forcé (interdit). Nouvelle branche
   `claude/niveaux-0-3-0`, comme demandé.
+
+## Ce qui reste (pour la suite)
+
+- Tester sur téléphone les 5 niveaux signalés comme les plus faibles dans la PR.
+- Cadrage : les figures apparaissent petites, car le cadrage englobe toute la solution ; à affiner (une marge plus faible peut sortir des étoiles du cadre, d'où le choix prudent).
+- Chapitres 7 et suivants ; recherche ciblée pour les niveaux à 5 coups sur les figures riches.
