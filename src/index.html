@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Règle et Compas</title>
+  <meta name="description" content="Énigmes de géométrie à la règle et au compas, d'après les Éléments d'Euclide.">
+  <meta name="theme-color" content="#F2F3F0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#101317" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Libre+Franklin:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <button class="iconbtn" id="menuBtn" aria-label="Voir les niveaux">
+      <svg class="ic" viewBox="0 0 28 28" aria-hidden="true"><path d="M6 8h16M6 14h16M6 20h10"/></svg>
+    </button>
+    <div class="titleblock">
+      <div class="eyebrow" id="eyebrow">Euclide · Livre I</div>
+      <h1 id="title">Règle et Compas</h1>
+    </div>
+    <div class="count" id="count">
+      <div class="eyebrow">Coups</div>
+      <div class="num" id="moves">0<span>/0</span></div>
+    </div>
+  </header>
+
+  <p class="goal" id="goal"></p>
+
+  <div class="stage" id="stage">
+    <canvas id="cv" role="img" aria-label="Feuille de construction"></canvas>
+    <div class="hintcard" id="hintcard" hidden>
+      <div class="hk" id="hintKicker">Indice</div>
+      <div id="hintText"></div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <button class="fit" id="fitBtn" aria-label="Recadrer la figure">
+      <svg class="ic" viewBox="0 0 28 28" aria-hidden="true"><path d="M6 11V6h5M17 6h5v5M22 17v5h-5M11 22H6v-5"/></svg>
+    </button>
+  </div>
+
+  <div class="status">
+    <div class="par" id="par"></div>
+    <button class="hintbtn" id="hintBtn">Indice <span class="pips" aria-hidden="true"><i></i><i></i><i></i></span></button>
+  </div>
+
+  <nav class="tray" aria-label="Instruments">
+    <div class="instr">
+      <button class="tool" data-tool="line" aria-pressed="false">
+        <svg class="ic" viewBox="0 0 28 28" aria-hidden="true"><path d="M3 22 25 6"/><circle class="f" cx="9" cy="17.6" r="2.3"/><circle class="f" cx="19" cy="10.4" r="2.3"/></svg>
+        <span>Droite</span>
+      </button>
+      <button class="tool" data-tool="circle" aria-pressed="false">
+        <svg class="ic" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="9.5"/><path class="d" d="M14 14h9.5"/><circle class="f" cx="14" cy="14" r="2"/></svg>
+        <span>Cercle</span>
+      </button>
+      <button class="tool" data-tool="med" aria-pressed="false">
+        <svg class="ic" viewBox="0 0 28 28" aria-hidden="true"><path d="M5 18h18M14 4v20M14 14.5h3.5V18"/><circle class="f" cx="5" cy="18" r="2"/><circle class="f" cx="23" cy="18" r="2"/></svg>
+        <span>Médiatrice</span>
+      </button>
+    </div>
+    <div class="acts">
+      <button class="act" id="undoBtn">
+        <svg class="ic" viewBox="0 0 28 28" aria-hidden="true"><path d="M10 7 5 12l5 5"/><path d="M5 12h11a6.5 6.5 0 0 1 0 13h-3"/></svg>
+        <span>Annuler</span>
+      </button>
+      <button class="act" id="resetBtn">
+        <svg class="ic" viewBox="0 0 28 28" aria-hidden="true"><path d="M22.5 14A8.5 8.5 0 1 1 20 8"/><path d="M21 3.5V9h-5.5"/></svg>
+        <span>Effacer</span>
+      </button>
+    </div>
+  </nav>
+
+  <section class="sheet" id="sheet" hidden aria-live="polite">
+    <div class="eyebrow" id="sheetEyebrow">Résolu</div>
+    <div class="big"><strong id="sheetMoves">0</strong><small id="sheetUnit">coups</small><span class="star" id="sheetStarMark" data-on="0" aria-hidden="true">★</span></div>
+    <p id="sheetStar"></p>
+    <p class="unlock" id="sheetUnlock" hidden><b>Nouvel outil : la Médiatrice.</b> Elle trace en un seul coup ce que tu viens de construire en trois.</p>
+    <div class="row">
+      <button class="primary" id="nextBtn">Niveau suivant</button>
+      <button class="secondary" id="replayBtn">Rejouer</button>
+    </div>
+  </section>
+</div>
+
+<section class="levels" id="levels" hidden aria-label="Niveaux">
+  <div class="lv-wrap">
+    <div class="lv-head">
+      <h2>Livre I</h2>
+      <button class="iconbtn" id="closeLevels" aria-label="Fermer la liste des niveaux">
+        <svg class="ic" viewBox="0 0 28 28" aria-hidden="true"><path d="M8 8l12 12M20 8 8 20"/></svg>
+      </button>
+    </div>
+    <p class="lv-sub">Six propositions des Éléments d'Euclide, à la règle et au compas. Chaque niveau réussi ouvre le suivant.</p>
+    <ol class="lv-list" id="lvList"></ol>
+    <div class="lv-foot">
+      <span id="lvTally"></span>
+      <button class="textbtn" id="wipeBtn">Effacer la progression</button>
+    </div>
+    <p class="version" id="version"></p>
+  </div>
+</section>
+
+<script type="module" src="game.js"></script>
+</body>
+</html>
