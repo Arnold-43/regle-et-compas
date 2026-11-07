@@ -12,7 +12,8 @@
  *   given          objets donnés [{id, t:'seg'|'line', a, b}]
  *   view           cadrage initial [xmin, ymin, xmax, ymax]
  *   lab            direction des étiquettes de points {A:[dx,dy]}
- *   target(G)      variantes d'objectif acceptées : [[géométries]]
+ *   objectif       figure à construire, prise dans le catalogue (src/catalog.js) : {id, args}
+ *   target(G)      variantes d'objectif acceptées : [[géométries]] — cible(this.objectif, G)
  *   ghost(G)       objectif affiché en pointillés
  *   celebrate(G,i) formes affichées à la réussite (variante i)
  *   decor(G)       formes de décor (optionnel)
@@ -21,7 +22,8 @@
  * Règle : tout niveau ajouté doit passer `npm test` (références valides, minimum exact,
  * aucune solution plus courte, les indices mènent à la solution).
  */
-import { add, sub, mul, dot, unit, perp, rot, lineThrough as L, bisector } from './engine.js';
+import { add, sub, mul, dot, unit, perp } from './engine.js';
+import { cible, sommetsEquilateral, perpendiculaire, bissectrice, parallele } from './catalog.js';
 
 export const LEVELS = [
   {
@@ -32,8 +34,9 @@ export const LEVELS = [
     given: [{ id: 's', t: 'seg', a: 'A', b: 'B' }],
     view: [-115, -95, 115, 145],
     lab: { A: [-1, 0.7], B: [1, 0.7] },
-    apexes(G) { return [rot(G.B, G.A, 60), rot(G.B, G.A, -60)].sort((p, q) => p[1] - q[1]); },
-    target(G) { return this.apexes(G).map((C) => [L(G.A, C), L(G.B, C)]); },
+    objectif: { id: 'triangle-equilateral', args: { s: ['A', 'B'] } },
+    apexes(G) { return sommetsEquilateral(G.A, G.B); },
+    target(G) { return cible(this.objectif, G); },
     ghost(G) { const C = this.apexes(G)[0]; return [{ seg: [G.A, C] }, { seg: [G.B, C] }]; },
     celebrate(G, alt) {
       const C = this.apexes(G)[alt];
@@ -55,11 +58,12 @@ export const LEVELS = [
     given: [{ id: 's', t: 'seg', a: 'A', b: 'B' }],
     view: [-115, -115, 115, 115],
     lab: { A: [-1, 0.5], B: [1, -0.5] },
-    target(G) { return [[bisector(G.A, G.B)]]; },
-    ghost(G) { return [{ line: bisector(G.A, G.B) }]; },
+    objectif: { id: 'mediatrice', args: { s: ['A', 'B'] } },
+    target(G) { return cible(this.objectif, G); },
+    ghost(G) { return [{ line: this.target(G)[0][0] }]; },
     celebrate(G) {
       const M = mul(add(G.A, G.B), 0.5), u = unit(sub(G.B, G.A));
-      return [{ line: bisector(G.A, G.B), stroke: 'blue' }, { right: [M, u, perp(u)] }, { dot: M, fill: 'red' }];
+      return [{ line: this.target(G)[0][0], stroke: 'blue' }, { right: [M, u, perp(u)] }, { dot: M, fill: 'red' }];
     },
     refs: [[
       { t: 'circle', a: 'A', b: 'B' }, { t: 'circle', a: 'B', b: 'A' },
@@ -74,8 +78,9 @@ export const LEVELS = [
     given: [{ id: 'l', t: 'line', a: 'A', b: 'P' }],
     view: [-112, -118, 132, 118],
     lab: { A: [-0.2, 1], P: [0.7, 1] },
-    perpAt(G) { const u = unit(sub(G.P, G.A)); return L(G.P, add(G.P, perp(u))); },
-    target(G) { return [[this.perpAt(G)]]; },
+    objectif: { id: 'perpendiculaire-en-un-point', args: { d: ['A', 'P'], P: 'P' } },
+    perpAt(G) { return perpendiculaire(G.P, G.A, G.P); },
+    target(G) { return cible(this.objectif, G); },
     ghost(G) { return [{ line: this.perpAt(G) }]; },
     celebrate(G) {
       const u = unit(sub(G.P, G.A));
@@ -99,8 +104,9 @@ export const LEVELS = [
     given: [{ id: 'l', t: 'line', a: 'A', b: 'B' }],
     view: [-120, -112, 120, 142],
     lab: { A: [-0.3, 1], B: [0.3, 1], P: [-1, -0.5] },
-    perpFrom(G) { const u = unit(sub(G.B, G.A)); return L(G.P, add(G.P, perp(u))); },
-    target(G) { return [[this.perpFrom(G)]]; },
+    objectif: { id: 'perpendiculaire-depuis-un-point', args: { d: ['A', 'B'], P: 'P' } },
+    perpFrom(G) { return perpendiculaire(G.P, G.A, G.B); },
+    target(G) { return cible(this.objectif, G); },
     ghost(G) { return [{ line: this.perpFrom(G) }]; },
     celebrate(G) {
       const u = unit(sub(G.B, G.A));
@@ -121,8 +127,9 @@ export const LEVELS = [
     given: [{ id: 'la', t: 'line', a: 'O', b: 'A' }, { id: 'lb', t: 'line', a: 'O', b: 'B' }],
     view: [-105, -100, 115, 135],
     lab: { O: [-1, 0.6], A: [0.5, 1], B: [1, -0.3] },
-    bis(G) { const w = add(unit(sub(G.A, G.O)), unit(sub(G.B, G.O))); return L(G.O, add(G.O, w)); },
-    target(G) { return [[this.bis(G)]]; },
+    objectif: { id: 'bissectrice', args: { a: { O: 'O', A: 'A', B: 'B' } } },
+    bis(G) { return bissectrice(G.O, G.A, G.B); },
+    target(G) { return cible(this.objectif, G); },
     ghost(G) { return [{ line: this.bis(G) }]; },
     decor(G) { return [{ wedge: [G.O, sub(G.A, G.O), sub(G.B, G.O)], fill: 'yellow', r: 46 }]; },
     celebrate(G) {
@@ -152,8 +159,9 @@ export const LEVELS = [
     given: [{ id: 'l', t: 'line', a: 'A', b: 'B' }],
     view: [-122, -118, 122, 128],
     lab: { A: [-0.3, 1], B: [0.3, 1], P: [-1, -0.5] },
-    par3(G) { return L(G.P, add(G.P, sub(G.B, G.A))); },
-    target(G) { return [[this.par3(G)]]; },
+    objectif: { id: 'parallele', args: { d: ['A', 'B'], P: 'P' } },
+    par3(G) { return parallele(G.P, G.A, G.B); },
+    target(G) { return cible(this.objectif, G); },
     ghost(G) { return [{ line: this.par3(G) }]; },
     celebrate(G) {
       const u = unit(sub(G.B, G.A));

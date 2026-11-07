@@ -123,7 +123,8 @@ export function intersect(g, h) {
 // ---------- construction : graphe rejouable ----------
 /**
  * Rejoue une construction.
- * @param level  niveau (pts, given)
+ * @param level  niveau (pts, given, hidden : ids de points qui définissent un objet donné
+ *               sans être visibles ni utilisables, ex. le centre d'un cercle donné)
  * @param G      positions des points de départ ({A:[x,y], …}) — level.pts ou une version déformée
  * @param specs  coups du joueur : [{t:'line'|'circle'|'med', a:idPoint, b:idPoint}]
  * @returns {ok, points, byId, objs}  — chaque intersection reçoit un id stable 'x:<obj1>:<obj2>:<k>'
@@ -139,7 +140,8 @@ export function build(level, G, specs) {
     byId.set(id, pt);
     return pt;
   };
-  for (const id of Object.keys(G)) addPoint(id, G[id], true);
+  const hidden = level.hidden || [];
+  for (const id of Object.keys(G)) if (!hidden.includes(id)) addPoint(id, G[id], true);
   const addObj = (o) => {
     for (const prev of objs) {
       for (const x of intersect(prev.g, o.g)) addPoint(`x:${prev.id}:${o.id}:${x.k}`, x.p, false);
