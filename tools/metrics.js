@@ -15,6 +15,9 @@
  *                minimale / tous les coups possibles (distincts, dans le cadre).
  *                partEtape[k] = moyenne de cette part sur les bons états de l'étape k.
  *                  premier = partEtape[0], moyenne = moyenne des partEtape, goulot = min des partEtape.
+ *                  goulotAvantDernier = min des partEtape sans la dernière étape (null si min = 1) :
+ *                  information seulement. Le goulot tombe presque toujours au dernier coup, celui
+ *                  que l'objectif en pointillés guide le plus.
  *   aux          points auxiliaires d'une solution : points construits (non donnés) servant d'appui
  *                à un tracé, qui ne sont ni un point cible ni sur une droite ou un cercle cible.
  *                auxMin / auxMax sur l'ensemble des solutions minimales.
@@ -82,6 +85,7 @@ export function bonsCoups(fig, solutions, min, outils, boite) {
     premier: partEtape[0],
     moyenne: partEtape.reduce((a, b) => a + b, 0) / partEtape.length,
     goulot: Math.min(...partEtape),
+    goulotAvantDernier: partEtape.length > 1 ? Math.min(...partEtape.slice(0, -1)) : null,
   };
 }
 
@@ -123,13 +127,14 @@ export { pc };
 // ---------- ligne de commande ----------
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { LEVELS } = await import('../src/levels.js');
-  console.log('Niveau  par  min  sol  1er coup  moyenne  goulot  aux    score');
+  console.log('Niveau  par  min  sol  1er coup  moyenne  goulot  avant-dernier  aux    score');
   for (const lv of LEVELS) {
     const t0 = Date.now();
     const m = mesureNiveau(lv);
     console.log(
       `${lv.id.padEnd(6)}  ${String(lv.par).padStart(3)}  ${fmt(m.min).padStart(3)}  ${String(m.nbSolutions).padStart(3)}` +
       `  ${pc(m.premier).padStart(8)}  ${pc(m.moyenne).padStart(7)}  ${pc(m.goulot).padStart(6)}` +
+      `  ${pc(m.goulotAvantDernier ?? undefined).padStart(13)}` +
       `  ${`${m.auxMin}–${m.auxMax}`.padEnd(5)}  ${fmt(m.score).padStart(5)}` +
       `${m.cadreDiffere ? '  ⚠ minimum hors cadre ' + m.minTheorique : ''}  (${Date.now() - t0} ms)`,
     );

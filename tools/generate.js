@@ -53,10 +53,10 @@ export function resume(r) {
     ` — ${r.temps.etatsCadre} états en ${(r.temps.cadreMs / 1000).toFixed(1)} s (cadre), ` +
     `${r.temps.etatsSansCadre} en ${(r.temps.sansCadreMs / 1000).toFixed(1)} s (sans cadre)`];
   const ok = r.candidats.filter((c) => c.score !== null).sort((a, b) => a.score - b.score);
-  lignes.push('score  min  sol  1er   moy   goulot  aux  cible');
+  lignes.push('score  min  sol  1er   moy   goulot  av-der  aux  cible');
   for (const c of ok) {
     lignes.push(`${fmt(c.score).padStart(5)}  ${String(c.min).padStart(3)}  ${String(c.nbSolutions).padStart(3)}` +
-      `  ${pc(c.premier).padStart(4)}  ${pc(c.moyenne).padStart(4)}  ${pc(c.goulot).padStart(6)}  ${`${c.auxMin}–${c.auxMax}`.padEnd(3)}  ${c.libelle}` +
+      `  ${pc(c.premier).padStart(4)}  ${pc(c.moyenne).padStart(4)}  ${pc(c.goulot).padStart(6)}  ${pc(c.goulotAvantDernier ?? undefined).padStart(6)}  ${`${c.auxMin}–${c.auxMax}`.padEnd(3)}  ${c.libelle}` +
       `${c.cadreDiffere ? `  ⚠ hors cadre : minimum théorique ${c.minTheorique}` : ''}`);
   }
   const hors = r.candidats.filter((c) => c.score === null);
