@@ -13,7 +13,9 @@ jamais rester bloqué** (Euclidea monte trop vite en difficulté et verrouille l
 Aucune dépendance npm. Garder ce cap tant qu'il n'y a pas une vraie raison d'en ajouter une.
 
 ```bash
-npm test          # tests des niveaux et de l'outillage (node:test) — doit rester vert et rapide
+npm test          # tests rapides : certificats à jour, refs, indices, chapitres (node:test) — vert et < 30 s
+npm run certify   # recalcule les certificats des niveaux nouveaux ou modifiés (src/certificats.js)
+npm run test:complet   # vérification exhaustive des minimums et du cadre (lente ; job CI séparé)
 npm run dev       # sert src/ sur http://localhost:8000 (ES modules : il faut un serveur)
 npm run build     # construit dist/ et y grave la version
 npm run metrics   # tableau des mesures de difficulté des niveaux du jeu
@@ -26,7 +28,10 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 | Fichier | Rôle |
 |---|---|
 | `src/engine.js` | Moteur géométrique **pur** (aucun DOM, tourne sous Node) : objets, intersections, rejeu d'une construction, vérification, indices. |
-| `src/levels.js` | Les niveaux, sous forme de données + petites fonctions (format documenté en tête de fichier). L'objectif vient du catalogue. |
+| `src/levels.js` | Les 10 niveaux écrits à la main (ch. 1 et 2, comportement figé) + les niveaux tirés des fiches. |
+| `src/fiches.js` | Niveaux en fiches de données (chapitre, figure, entrée du catalogue, outils, marge) et figures de départ du jeu. |
+| `src/presentation.js` | Titre, consigne, objectif en pointillés et célébration façon Byrne de chaque entrée du catalogue. Pur. |
+| `src/certificats.js` | **Écrit par `npm run certify`** : empreinte, minimum, solutions, score, refs, cadrage et lettres de chaque niveau. |
 | `src/chapters.js` | Chapitres (une idée chacun, défi optionnel) et règles d'ouverture. Pur, testé dans `tests/chapters.test.js`. |
 | `src/catalog.js` | Catalogue des figures remarquables (médiatrice, tangente, carré…) : nom + fonction pure qui calcule la cible. Pur. |
 | `src/game.js` | Interface : canvas, toucher (loupe, pincer, glisser), règles du jeu, progression (localStorage), version. |
@@ -38,6 +43,8 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 | `tools/metrics.js` | Mesures de difficulté et score provisoire (définitions exactes en tête de fichier). |
 | `tools/figures.js` | Figures de départ du générateur et association des rôles du catalogue. |
 | `tools/generate.js` | Générateur de candidats : JSON dans `tools/out/` (non versionné) + résumé trié par score. |
+| `tools/certify.js` | Certification des niveaux : exploration, refs tirées des solutions minimales, cadrage, lettres, garde-fous. |
+| `tests/complet/` | Vérification exhaustive (minimums, solutions, cadre), lancée par `.github/workflows/verification-complete.yml`. |
 | `tests/levels.test.js` | Garde-fou de chaque niveau. |
 | `tests/chapters.test.js` | Garde-fou des chapitres et de la progression enregistrée (aucune perte en changeant de version). |
 | `docs/chapitres.md` | Carte des chapitres et candidats de niveaux retenus (avec leurs mesures). |
@@ -59,6 +66,13 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 - Part de bons coups par étape : un coup est bon si l'ensemble tracé reste inclus dans une solution minimale. `premier`, `moyenne`, `goulot` (pire étape, brut) et `goulotLibre` (sans les étapes guidées, utilisé dans le score).
 - `aux` : points construits servant d'appui, hors de la cible (min et max sur les solutions minimales).
 - `score = 1·min + 0,75·aux + 1·(−log2 goulotLibre) − 0,5·log2(min(nbSolutions, 4))` (constantes `POIDS`, `PLAFOND_SOLUTIONS`). Coup guidé = tracé d'un objet de la cible (droite, cercle), visible en pointillés ; créer un point cible ne l'est pas, mais le joueur vise le point : la part de bons coups se calcule alors parmi les tracés qui passent par un point cible manquant. Provisoire : contrôle de cohérence sur les niveaux existants, pas un calage.
+
+### Créer un niveau (fiche)
+1. Ajouter une fiche dans `src/fiches.js` (au bon rang de son chapitre ; défi en dernier, `defi: true`), avec une figure de `FIGURES` (positions génériques).
+2. `npm run certify` : calcule le certificat, ou rejette la fiche avec la raison (minimum hors de 2 à 5 coups, étoile hors du cadre jouable, coïncidence, indices qui ne mènent pas au minimum). Une fiche rejetée n'apparaît pas dans le jeu.
+3. `npm test`. Toute modification d'une figure, d'une cible ou des outils change l'empreinte : il faut recertifier.
+- Garde-fous testés : au plus 2 niveaux par cible du catalogue dans un chapitre, aucun niveau en 1 coup (hors ch. 1).
+- Mode test dans le jeu : 5 tapes sur le numéro de version (écran « Chapitres ») ouvrent tous les niveaux ; 5 de plus referment. Rien n'est enregistré pendant ce mode.
 
 ### Chapitres (`src/chapters.js`)
 - Un chapitre : `id`, `numero`, `titre`, `idee` (une phrase), `niveaux` (requis, dans l'ordre), `defi` (optionnel, en dernier).
