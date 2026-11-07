@@ -87,3 +87,10 @@ test('les niveaux des fiches ont un titre, une consigne et une célébration pou
     assert.ok(l.ghost(l.pts).length, l.id);
   }
 });
+
+test('dents de scie : facile → dur, une respiration aux deux tiers', async () => {
+  const { dentsDeScie } = await import('../src/chapters.js');
+  const sc = { a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 };
+  assert.deepEqual(dentsDeScie(Object.keys(sc), (k) => sc[k]), ['a', 'c', 'd', 'b', 'e', 'f']);
+  assert.deepEqual(dentsDeScie(['c', 'a', 'b'], (k) => sc[k]), ['a', 'b', 'c']);
+});

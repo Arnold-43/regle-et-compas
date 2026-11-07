@@ -261,6 +261,13 @@ export const CATALOGUE = [
     cible: (G, b) => [[pt(add(G[b.s[1]], sub(G[b.s[1]], G[b.s[0]])))]],
     libelle: (b) => `point C sur (${b.s[0]}${b.s[1]}) au-delà de ${b.s[1]}, avec ${b.s[1]}C = ${b.s[0]}${b.s[1]}`,
   },
+  {
+    id: 'parallelogramme',
+    nom: 'Parallélogramme',
+    args: { t: 'triangle' },
+    cible: (G, b) => { const [A, B, C] = b.t.map((k) => G[k]); return [[pt(add(A, sub(C, B)))]]; },
+    libelle: (b) => `quatrième sommet D du parallélogramme ${b.t.join('')}D`,
+  },
 ];
 
 export const ENTREE = Object.fromEntries(CATALOGUE.map((e) => [e.id, e]));

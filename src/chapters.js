@@ -13,14 +13,28 @@
  *   - dans un chapitre, un niveau requis s'ouvre quand le niveau requis qui le précède est réussi ;
  *   - le défi s'ouvre quand tous les niveaux requis de son chapitre sont réussis.
  *
- * Les chapitres 3 et suivants prennent leurs niveaux dans les fiches (src/fiches.js), dans l'ordre des
- * fiches, sans les fiches rejetées à la certification ; un chapitre sans niveau n'est pas affiché.
+ * Les chapitres 3 et suivants prennent leurs niveaux dans les fiches (src/fiches.js), sans les fiches
+ * rejetées à la certification ; un chapitre sans niveau n'est pas affiché. Leur ordre suit les scores
+ * certifiés, en dents de scie (voir dentsDeScie) ; le défi reste en dernier.
  * sansMediatrice : le chapitre se joue à la règle et au compas seuls (message dédié sur le bouton).
  *
  * La progression est celle de game.js : {done: {idNiveau: {solved, star, best}}}.
  */
 import { FICHES } from './fiches.js';
 import { ficheAcceptee } from './levels.js';
+import { CERTIFICATS } from './certificats.js';
+
+/**
+ * Ordre de jeu « en dents de scie » : du plus facile au plus dur d'après le score, avec une respiration —
+ * le deuxième niveau le plus facile est déplacé aux deux tiers du chapitre (à partir de 4 niveaux).
+ */
+export function dentsDeScie(ids, score) {
+  const tri = ids.slice().sort((a, b) => score(a) - score(b) || (a < b ? -1 : 1));
+  if (tri.length < 4) return tri;
+  const [resp] = tri.splice(1, 1);
+  tri.splice(Math.round((2 * (tri.length + 1)) / 3) - 1, 0, resp);
+  return tri;
+}
 
 const ECRITS = [
   {
@@ -44,7 +58,8 @@ const PAR_FICHES = [
 ].map((ch) => {
   const fs = FICHES.filter((f) => f.chapitre === ch.id && ficheAcceptee(f));
   const defi = fs.find((f) => f.defi);
-  return { ...ch, niveaux: fs.filter((f) => !f.defi).map((f) => f.id), ...(defi ? { defi: defi.id } : {}) };
+  const niveaux = dentsDeScie(fs.filter((f) => !f.defi).map((f) => f.id), (id) => CERTIFICATS[id].score);
+  return { ...ch, niveaux, ...(defi ? { defi: defi.id } : {}) };
 }).filter((ch) => ch.niveaux.length);
 
 export const CHAPITRES = ECRITS.concat(PAR_FICHES);

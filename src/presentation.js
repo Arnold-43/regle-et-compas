@@ -11,6 +11,8 @@ import { centreCirconscrit, centreInscrit } from './catalog.js';
 
 const seg = (fig, a, b) => fig.given.some((g) => g.t === 'seg' && ((g.a === a && g.b === b) || (g.a === b && g.b === a)));
 const droite = (fig, d) => (seg(fig, d[0], d[1]) ? `le segment [${d[0]}${d[1]}]` : `la droite (${d[0]}${d[1]})`);
+const aDroite = (fig, d) => (seg(fig, d[0], d[1]) ? `au segment [${d[0]}${d[1]}]` : `à la droite (${d[0]}${d[1]})`);
+const deSeg = (fig, s) => (seg(fig, s[0], s[1]) ? `du segment [${s[0]}${s[1]}]` : `de [${s[0]}${s[1]}]`);
 const paire = (fig, s) => (seg(fig, s[0], s[1]) ? `le segment [${s[0]}${s[1]}]` : `[${s[0]}${s[1]}]`);
 const tri = (t) => t.join('');
 
@@ -37,7 +39,7 @@ const P = {
   },
   'perpendiculaire-en-un-point': {
     titre: () => 'Perpendiculaire en un point',
-    consigne: (b, fig) => `Trace la perpendiculaire à ${droite(fig, b.d)} qui passe par ${b.P}.`,
+    consigne: (b, fig) => `Trace la perpendiculaire ${aDroite(fig, b.d)} qui passe par ${b.P}.`,
     celebrer: (G, b, alt, alts) => {
       const g = alts[0][0], u = unit(sub(G[b.d[1]], G[b.d[0]]));
       return [{ line: g, stroke: 'blue' }, angleDroit(G[b.P], u, add(G[b.P], g.d))];
@@ -45,7 +47,7 @@ const P = {
   },
   'perpendiculaire-depuis-un-point': {
     titre: () => 'Perpendiculaire depuis un point',
-    consigne: (b, fig) => `Abaisse la perpendiculaire à ${droite(fig, b.d)} depuis ${b.P}.`,
+    consigne: (b, fig) => `Abaisse la perpendiculaire ${aDroite(fig, b.d)} depuis ${b.P}.`,
     celebrer: (G, b, alt, alts) => {
       const g = alts[0][0], F = pied(G[b.P], G[b.d[0]], G[b.d[1]]), u = unit(sub(G[b.d[1]], G[b.d[0]]));
       return [{ line: g, stroke: 'blue' }, { seg: [G[b.P], F], stroke: 'red' }, angleDroit(F, u, G[b.P])];
@@ -53,7 +55,7 @@ const P = {
   },
   parallele: {
     titre: () => 'Parallèle',
-    consigne: (b, fig) => `Trace la parallèle à ${droite(fig, b.d)} qui passe par ${b.P}.`,
+    consigne: (b, fig) => `Trace la parallèle ${aDroite(fig, b.d)} qui passe par ${b.P}.`,
     celebrer: (G, b, alt, alts) => {
       const u = unit(sub(G[b.d[1]], G[b.d[0]]));
       return [{ line: alts[0][0], stroke: 'blue' }, { ticks: [G[b.P], u] }, { ticks: [mul(add(G[b.d[0]], G[b.d[1]]), 0.5), u] }];
@@ -61,7 +63,7 @@ const P = {
   },
   mediatrice: {
     titre: () => 'Médiatrice',
-    consigne: (b, fig) => `Trace la médiatrice de ${paire(fig, b.s)} : la droite qui le coupe en son milieu, à angle droit.`,
+    consigne: (b, fig) => `Trace la médiatrice ${deSeg(fig, b.s)} : la droite qui le coupe en son milieu, à angle droit.`,
     celebrer: (G, b, alt, alts) => {
       const [A, B] = [G[b.s[0]], G[b.s[1]]], M = mul(add(A, B), 0.5), u = unit(sub(B, A));
       return [{ line: alts[0][0], stroke: 'blue' }, { seg: [A, M], stroke: 'red' }, { seg: [M, B], stroke: 'red' }, { right: [M, u, perp(u)] }, { dot: M, fill: 'red' }];
@@ -69,7 +71,7 @@ const P = {
   },
   milieu: {
     titre: () => 'Milieu',
-    consigne: (b, fig) => `Construis le milieu de ${paire(fig, b.s)}.`,
+    consigne: (b, fig) => `Construis le milieu ${deSeg(fig, b.s)}.`,
     celebrer: (G, b) => {
       const [A, B] = [G[b.s[0]], G[b.s[1]]], M = mul(add(A, B), 0.5);
       return [{ seg: [A, M], stroke: 'red' }, { seg: [M, B], stroke: 'blue' }, { dot: M, fill: 'yellow' }];
@@ -138,7 +140,7 @@ const P = {
   },
   carre: {
     titre: () => 'Carré',
-    consigne: (b, fig) => `Construis les deux autres sommets d'un carré de côté ${paire(fig, b.s)}.`,
+    consigne: (b) => `Construis les deux autres sommets d'un carré de côté [${b.s[0]}${b.s[1]}].`,
     celebrer: (G, b, alt, alts) => polygone([G[b.s[0]], G[b.s[1]], alts[alt][0].p, alts[alt][1].p]),
   },
   hexagone: {
@@ -165,6 +167,11 @@ const P = {
     titre: () => 'Partage en quatre',
     consigne: (b, fig) => `Partage ${paire(fig, b.s)} en quatre parts égales.`,
     celebrer: (G, b, alt, alts) => parts(G[b.s[0]], G[b.s[1]], alts[0].map((e) => e.p)),
+  },
+  parallelogramme: {
+    titre: () => 'Parallélogramme',
+    consigne: (b) => `Place le point D pour que ${b.t.join('')}D soit un parallélogramme.`,
+    celebrer: (G, b, alt, alts) => polygone([...b.t.map((k) => G[k]), alts[0][0].p]),
   },
   report: {
     titre: () => 'Report de longueur',
