@@ -80,3 +80,11 @@ test("budget de temps : l'exploration s'arrête sans rendre de résultat partiel
   const lv = LEVELS.find((l) => l.id === 'I.31');
   assert.throws(() => explore(lv, [{ target: (G) => lv.target(G) }], { n: 4, outils: lv.tools, limiteMs: 0 }), (e) => e.interrompu === true);
 });
+
+test('points cibles visés : le dernier coup du milieu ne se cherche que parmi les tracés qui passent par lui', async () => {
+  const { genere } = await import('../tools/generate.js');
+  const r = genere('segment', { n: 3, outils: ['line', 'circle'] });
+  const m = r.candidats.find((c) => c.cible === 'milieu');
+  assert.equal(m.min, 3);
+  assert.ok(m.partLibre[2] > m.partEtape[2]); // dernier coup : la visée réduit le choix
+});

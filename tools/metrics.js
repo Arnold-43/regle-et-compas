@@ -19,6 +19,10 @@
  *                de la cible (droite ou cercle) n'est pas cherché. Créer un point cible, lui, n'est
  *                pas guidé : trouver quel tracé crée le point, c'est l'astuce. Un bon état est guidé si
  *                l'un de ses bons coups est guidé (le joueur peut le jouer sans chercher).
+ *                Points cibles visés : le joueur voit les points cibles en pointillés. Dans un bon état
+ *                où un bon coup crée un point cible manquant, il ne cherche que parmi les tracés qui
+ *                passent par un point cible manquant : la part de bons coups y est calculée sur ces
+ *                tracés seulement (bons coups qui y passent / tracés qui y passent).
  *                partLibre[k] = moyenne de la part de bons coups sur les bons états NON guidés de
  *                l'étape k (null si tous le sont). goulotLibre = min des partLibre (1 s'il n'y a
  *                aucune étape à chercher). C'est lui qui entre dans le score ; le goulot brut est
@@ -72,6 +76,8 @@ export function bonsCoups(fig, solutions, min, outils, boite, alts = []) {
   const elems = alts.flat();
   const clesCible = new Set(elems.filter((el) => el.k !== 'point').map(cle));
   const guide = (c) => clesCible.has(c.cle);
+  const ptsCible = elems.filter((el) => el.k === 'point').map((el) => el.p);
+  const passePar = (g, p) => (g.k === 'line' ? onLine(g, p) : onCircle(g, p));
   const ensembles = [...solutions.keys()].map((sig) => new Set(sig.split('|')));
   const inclus = (cles) => ensembles.some((E) => cles.every((k) => E.has(k)));
   let etage = [racine(fig)];
@@ -81,17 +87,26 @@ export function bonsCoups(fig, solutions, min, outils, boite, alts = []) {
     const suivant = new Map();
     for (const st of etage) {
       const cs = coups(st, outils, boite);
-      let bons = 0, guidee = false;
+      const manquants = ptsCible.filter((p) => !st.points.some((q) => near(q.p, p)));
+      const vise = (c) => manquants.some((p) => passePar(c.g, p));
+      let bons = 0, guidee = false, creePoint = false, visesTous = 0, visesBons = 0;
       for (const c of cs) {
+        const v = vise(c);
+        if (v) visesTous++;
         if (!inclus(st.cles.concat([c.cle]))) continue;
         bons++;
+        if (v) visesBons++;
         const e = etend(st, c.spec, c.g, c.cle);
         if (guide(c)) guidee = true;
+        if (e.nouveaux.some((q) => manquants.some((p) => near(p, q.p)))) creePoint = true;
         suivant.set(signature(e), e);
       }
       const part = cs.length ? bons / cs.length : 0;
       somme += part;
-      if (!guidee) { sommeLibre += part; libres++; }
+      if (!guidee) {
+        sommeLibre += creePoint && visesTous ? visesBons / visesTous : part;
+        libres++;
+      }
     }
     partEtape.push(somme / etage.length);
     partLibre.push(libres ? sommeLibre / libres : null);

@@ -3,8 +3,10 @@
  *
  *   node tools/generate.js <figure|toutes> [--n 4] [--outils line,circle,med] [--budget 10]
  *
- * --budget : minutes au plus par figure (les deux explorations comprises). Au-delà, le run
- * s'arrête et dit jusqu'où il est allé, sans écrire de résultats (ils ne seraient pas exacts).
+ * --budget : minutes au plus par figure (les deux explorations comprises). Si la passe cadrée
+ * dépasse, le run s'arrête et dit jusqu'où il est allé, sans écrire de résultats (ils ne seraient
+ * pas exacts). Si seule la passe sans cadre dépasse, les résultats cadrés (exacts) sont gardés
+ * et le minimum théorique est marqué non calculé (null).
  *
  * Depuis une figure de départ (tools/figures.js), explore toutes les constructions jusqu'à N coups
  * et liste chaque figure du catalogue (src/catalog.js) atteignable, avec ses mesures (tools/metrics.js).
@@ -37,9 +39,16 @@ export function genere(nomFigure, { n = 4, outils, budgetMs = Infinity } = {}) {
   const boite = cadre(fig.view);
   const passe = (nom, f) => { try { return f(); } catch (e) { e.passe = nom; throw e; } };
   const ec = passe('cadrée', () => explore(fig, inst, { n, outils, boite, limiteMs: budgetMs }));
-  const et = passe('sans cadre', () => explore(fig, inst, { n, outils, boite: null, limiteMs: budgetMs - ec.ms }));
+  // La passe cadrée suffit aux mesures : si seule la passe sans cadre dépasse le budget,
+  // on garde les résultats cadrés (exacts) et le minimum théorique reste « non calculé ».
+  let et = null, sansCadre = null;
+  try { et = explore(fig, inst, { n, outils, boite: null, limiteMs: budgetMs - ec.ms }); } catch (e) {
+    if (!e.interrompu) throw e;
+    sansCadre = { interrompu: true, etats: e.etats, ms: e.ms };
+  }
   const candidats = inst.map((c, i) => {
-    const m = mesuresDe(fig, c, ec.resultats[i], et.resultats[i], outils, boite);
+    const m = mesuresDe(fig, c, ec.resultats[i], et ? et.resultats[i] : undefined, outils, boite);
+    if (!et) { m.minTheorique = null; m.cadreDiffere = null; }
     return {
       cible: c.entree, nom: c.nom, libelle: c.libelle, args: c.args, ...m,
       solution: m.exemple ? decrire(m.exemple) : null,
@@ -47,7 +56,8 @@ export function genere(nomFigure, { n = 4, outils, budgetMs = Infinity } = {}) {
   });
   return {
     figure: nomFigure, nomFigure: fig.nom, n, outils,
-    temps: { cadreMs: ec.ms, sansCadreMs: et.ms, etatsCadre: ec.etats, etatsSansCadre: et.etats },
+    temps: { cadreMs: ec.ms, sansCadreMs: et ? et.ms : null, etatsCadre: ec.etats, etatsSansCadre: et ? et.etats : null },
+    sansCadre: sansCadre || { interrompu: false },
     candidats,
   };
 }
@@ -55,7 +65,9 @@ export function genere(nomFigure, { n = 4, outils, budgetMs = Infinity } = {}) {
 export function resume(r) {
   const lignes = [`\n${r.nomFigure} (${r.figure}) — N=${r.n}, outils ${r.outils.join(', ')}` +
     ` — ${r.temps.etatsCadre} états en ${(r.temps.cadreMs / 1000).toFixed(1)} s (cadre), ` +
-    `${r.temps.etatsSansCadre} en ${(r.temps.sansCadreMs / 1000).toFixed(1)} s (sans cadre)`];
+    (r.sansCadre.interrompu
+      ? `passe sans cadre arrêtée au budget (${r.sansCadre.etats} états) : minimum théorique non calculé`
+      : `${r.temps.etatsSansCadre} en ${(r.temps.sansCadreMs / 1000).toFixed(1)} s (sans cadre)`)];
   const ok = r.candidats.filter((c) => c.score !== null).sort((a, b) => a.score - b.score);
   lignes.push('score  min  sol  1er   moy   brut   libre   aux  cible');
   for (const c of ok) {
