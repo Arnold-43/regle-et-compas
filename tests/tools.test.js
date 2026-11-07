@@ -64,6 +64,7 @@ test('générateur, test de fumée : segment seul en 2 coups', async () => {
   const par = (id) => r.candidats.find((c) => c.cible === id);
   assert.equal(par('mediatrice').min, 1);
   assert.equal(par('milieu').min, 1); // la médiatrice coupe le segment donné en son milieu
+  assert.ok(par('milieu').goulotLibre < 1); // créer un point cible n'est pas guidé
   assert.equal(par('triangle-equilateral').min, Infinity);
   assert.ok(resume(r).includes('médiatrice de [AB]'));
   JSON.stringify(r);

@@ -16,7 +16,8 @@
  *                partEtape[k] = moyenne de cette part sur les bons états de l'étape k.
  *                  premier = partEtape[0], moyenne = moyenne des partEtape, goulot = min des partEtape.
  *                Coups guidés : l'objectif est affiché en pointillés, donc un coup qui trace un objet
- *                de la cible, ou qui crée un point cible, n'est pas cherché. Un bon état est guidé si
+ *                de la cible (droite ou cercle) n'est pas cherché. Créer un point cible, lui, n'est
+ *                pas guidé : trouver quel tracé crée le point, c'est l'astuce. Un bon état est guidé si
  *                l'un de ses bons coups est guidé (le joueur peut le jouer sans chercher).
  *                partLibre[k] = moyenne de la part de bons coups sur les bons états NON guidés de
  *                l'étape k (null si tous le sont). goulotLibre = min des partLibre (1 s'il n'y a
@@ -32,18 +33,20 @@ import { explore, racine, coups, etend, signature, cadre, cle } from './explore.
 
 /**
  * Score de difficulté provisoire (à recaler sur des données de jeu réelles) :
- *   score = coups·min + aux·auxMin + goulot·(−log2 goulotLibre) − solutions·log2(nbSolutions)
+ *   score = coups·min + aux·auxMin + goulot·(−log2 goulotLibre) − solutions·log2(min(nbSolutions, 4))
  *  - chaque coup du minimum compte pour 1 ;
  *  - un point auxiliaire est une idée à trouver ;
  *  - le goulot en bits : une étape où un coup sur 2 est bon coûte 1, un sur 8 coûte 3 ;
- *  - chaque doublement du nombre de solutions minimales rend le niveau un peu plus facile.
+ *  - chaque doublement du nombre de solutions minimales rend le niveau un peu plus facile,
+ *    plafonné à 4 solutions : au-delà, ce sont des variantes de la même idée.
  */
 export const POIDS = { coups: 1, aux: 0.75, goulot: 1, solutions: 0.5 };
+export const PLAFOND_SOLUTIONS = 4;
 
 export function score(m) {
   if (!Number.isFinite(m.min) || m.min === 0) return null;
   return POIDS.coups * m.min + POIDS.aux * m.auxMin + POIDS.goulot * -Math.log2(m.goulotLibre)
-    - POIDS.solutions * Math.log2(m.nbSolutions);
+    - POIDS.solutions * Math.log2(Math.min(m.nbSolutions, PLAFOND_SOLUTIONS));
 }
 
 const surCible = (p, alt) => alt.some((el) =>
@@ -68,8 +71,7 @@ export function auxiliaires(lv, specs) {
 export function bonsCoups(fig, solutions, min, outils, boite, alts = []) {
   const elems = alts.flat();
   const clesCible = new Set(elems.filter((el) => el.k !== 'point').map(cle));
-  const ptsCible = elems.filter((el) => el.k === 'point').map((el) => el.p);
-  const guide = (c, e) => clesCible.has(c.cle) || e.nouveaux.some((q) => ptsCible.some((p) => near(p, q.p)));
+  const guide = (c) => clesCible.has(c.cle);
   const ensembles = [...solutions.keys()].map((sig) => new Set(sig.split('|')));
   const inclus = (cles) => ensembles.some((E) => cles.every((k) => E.has(k)));
   let etage = [racine(fig)];
@@ -84,7 +86,7 @@ export function bonsCoups(fig, solutions, min, outils, boite, alts = []) {
         if (!inclus(st.cles.concat([c.cle]))) continue;
         bons++;
         const e = etend(st, c.spec, c.g, c.cle);
-        if (guide(c, e)) guidee = true;
+        if (guide(c)) guidee = true;
         suivant.set(signature(e), e);
       }
       const part = cs.length ? bons / cs.length : 0;
