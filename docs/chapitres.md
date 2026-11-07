@@ -15,10 +15,24 @@ CLAUDE.md. Le score est provisoire (plus il est haut, plus c'est dur) : il sert 
 | 2 | Les angles | Le triangle équilatéral donne 60° ; couper un angle en deux donne les autres. | 60° (#1), 30° (variante de #1), 45° (#9) | 15° (#8) |
 | 3 | Le cercle donné | Un cercle déjà tracé fait gagner des coups. | #6, #4, #3, #12, #13 | — |
 | 4 | Sans médiatrice | Retrouver les constructions avec la règle et le compas seuls. | #5, #16, #17, #10 | #15 (Thalès) |
-| 5 | Centres et tangentes | Les droites remarquables deviennent des outils. | #2, #19 | #18 |
+| 5 | Centres et tangentes | Les droites remarquables deviennent des outils. | #2, #19 (+ bissectrice) | #18 |
 | 6 | Carrés et partages | Reporter des longueurs pour bâtir et partager. | #7, #14 | #20 |
 
-État : chapitre 1 publié ; chapitre 2 ajouté en 0.2.0 ; chapitres 3 à 6 à construire.
+État : chapitre 1 publié ; chapitre 2 ajouté en 0.2.0 ; chapitres 3 à 6 ajoutés en 0.3.0 (55 niveaux en tout).
+
+Depuis 0.3.0, les niveaux des chapitres 3 à 6 sont des fiches (`src/fiches.js`), certifiées par
+`npm run certify`. L'ordre de jeu est calculé d'après les scores, en dents de scie (`src/chapters.js`).
+
+| Ch. | Niveaux requis | Défi | Remarque |
+|---|---|---|---|
+| 3 Le cercle donné | 11 | centre du cercle effacé, règle et compas (5 coups, 10,9) | carrés et triangles inscrits ajoutés au catalogue |
+| 4 Sans médiatrice | 11 | Thalès : perpendiculaire en C (3 coups, 8,3) | les deux bissectrices (9,2 et 9,5) sont plus dures que le défi, comme dans la carte |
+| 5 Centres et tangentes | 9 | centre du cercle inscrit (4 coups, 9,3) | la bissectrice remplace « deux tangentes » (10,5, plus dur que le défi) |
+| 6 Carrés et partages | 10 | partage en 3 dans l'angle, règle et compas (5 coups, 9,9) | parallélogramme, partage en 4 et report de longueur ajoutés au catalogue |
+
+Fiches écartées : partage en 4 à la règle et au compas (aucune solution en 5 coups au plus), deux
+tangentes (plus dur que le défi), second centre inscrit (doublon du défi), milieu de [AP] en règle et
+compas (hors thème).
 
 ## Les 20 candidats
 

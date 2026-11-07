@@ -99,9 +99,9 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 
 ## Feuille de route
 
-1. ~~Générateur de niveaux~~ (fait : `tools/generate.js`, catalogue `src/catalog.js`). Reste : étendre le catalogue, ajouter des figures de départ, transformer un candidat choisi en niveau (textes, `refs`, `celebrate`).
+1. ~~Générateur de niveaux~~ (fait : `tools/generate.js`, catalogue `src/catalog.js`, fiches et `npm run certify`). Reste : étendre le catalogue et les figures de départ ; des niveaux à 5 coups sur figures riches demandent une recherche ciblée (le triangle et l'angle dépassent 10 min en exploration complète).
 2. ~~Mesures de difficulté~~ (faites : `tools/metrics.js`). Reste : le goulot tombe presque toujours au dernier coup (guidé par l'objectif en pointillés), à repenser ; caler les `POIDS` sur des données de jeu (temps, annulations, indices, abandons).
-3. **Chapitres** : 10 à 12 chapitres de 12 à 15 niveaux, **une seule idée par chapitre** (outil ou notion), courbe en dents de scie (introduction → montée → respiration → défi final optionnel). Sources : Euclide Livres I, III, IV, VI + variantes (compas seul, outillage restreint, autre figure de départ). Fait : ch. 1 « Les bases » et ch. 2 « Les angles » (0.2.0). Carte des ch. 3 à 6 et candidats : `docs/chapitres.md`.
+3. **Chapitres** : 10 à 12 chapitres de 12 à 15 niveaux, **une seule idée par chapitre** (outil ou notion), courbe en dents de scie (introduction → montée → respiration → défi final optionnel). Sources : Euclide Livres I, III, IV, VI + variantes (compas seul, outillage restreint, autre figure de départ). Fait : ch. 1 « Les bases », ch. 2 « Les angles » (0.2.0), ch. 3 à 6 en fiches (0.3.0, 55 niveaux). Reste : chapitres 7 et suivants (parallèles, Livre III, Livre VI…) ; détail et écarts dans `docs/chapitres.md`.
 4. **Télémétrie de jeu** anonyme pour calibrer la difficulté.
 5. **Play Store** : emballer le même code avec Capacitor.
 
