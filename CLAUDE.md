@@ -13,9 +13,11 @@ jamais rester bloqué** (Euclidea monte trop vite en difficulté et verrouille l
 Aucune dépendance npm. Garder ce cap tant qu'il n'y a pas une vraie raison d'en ajouter une.
 
 ```bash
-npm test          # tests des niveaux (node:test) — doit rester vert
+npm test          # tests des niveaux et de l'outillage (node:test) — doit rester vert et rapide
 npm run dev       # sert src/ sur http://localhost:8000 (ES modules : il faut un serveur)
 npm run build     # construit dist/ et y grave la version
+npm run metrics   # tableau des mesures de difficulté des niveaux du jeu
+npm run generate -- triangle --n 4   # candidats de niveaux (figure ou « toutes », --outils line,circle,med)
 python3 tools/make-icons.py   # régénère les icônes (Pillow)
 ```
 
@@ -24,13 +26,19 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 | Fichier | Rôle |
 |---|---|
 | `src/engine.js` | Moteur géométrique **pur** (aucun DOM, tourne sous Node) : objets, intersections, rejeu d'une construction, vérification, indices. |
-| `src/levels.js` | Les niveaux, sous forme de données + petites fonctions (format documenté en tête de fichier). |
+| `src/levels.js` | Les niveaux, sous forme de données + petites fonctions (format documenté en tête de fichier). L'objectif vient du catalogue. |
+| `src/catalog.js` | Catalogue des figures remarquables (médiatrice, tangente, carré…) : nom + fonction pure qui calcule la cible. Pur. |
 | `src/game.js` | Interface : canvas, toucher (loupe, pincer, glisser), règles du jeu, progression (localStorage), version. |
 | `src/index.html`, `src/styles.css` | Squelette et styles (jetons de couleur lus par le canvas). |
 | `src/sw.js`, `src/manifest.webmanifest`, `src/icons/` | App installable et hors ligne. |
 | `src/version.js` | Version de dev ; remplacé au build. |
-| `tools/solver.js` | Recherche exhaustive du minimum de coups (base du futur générateur). |
+| `tools/solver.js` | Recherche du minimum de coups, simple et indépendante : sert d'oracle aux tests. |
+| `tools/explore.js` | Exploration exhaustive élaguée (incrémentale, signature, dernier coup ciblé, cadre jouable), toutes cibles d'une figure à la fois. |
+| `tools/metrics.js` | Mesures de difficulté et score provisoire (définitions exactes en tête de fichier). |
+| `tools/figures.js` | Figures de départ du générateur et association des rôles du catalogue. |
+| `tools/generate.js` | Générateur de candidats : JSON dans `tools/out/` (non versionné) + résumé trié par score. |
 | `tests/levels.test.js` | Garde-fou de chaque niveau. |
+| `tests/tools.test.js` | Garde-fou de l'outillage (incrémental ≡ build, solutions recoupées par force brute, fumée du générateur). |
 | `scripts/build.js` | Copie `src/` vers `dist/`, injecte la version, nomme le cache du service worker. |
 | `.github/workflows/deploy.yml` | Tests sur chaque PR ; sur `main` : tests → build → GitHub Pages. |
 
@@ -40,6 +48,14 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 - `verify(level, specs)` rejoue la construction sur des points de départ légèrement déplacés : une figure juste « par coïncidence » est refusée.
 - `hint(level, specs)` calcule l'indice **depuis la figure du joueur** : d'abord « un seul tracé manque ? », sinon la solution de référence qui recoupe le plus ce qui est déjà tracé ; signale une impasse si les coups restants ne suffisent plus.
 - Les solutions de référence (`refs`) désignent les intersections par `{x:[i, j], pick}` avec `pick:'top'|'bottom'`, `not:'A'`, `near:'B'`, `far:'O'`.
+- `hidden` (niveau ou figure) : points qui définissent un objet donné sans être visibles (ex. centre d'un cercle donné).
+
+### Mesures de difficulté (`tools/metrics.js`)
+- `min` : minimum de coups avec appuis dans le **cadre jouable** (zoom arrière maximal de `game.js`, 0,35 × le cadrage). `minTheorique` : sans cadre, c'est le `par`. S'ils diffèrent, l'étoile est injouable sur téléphone.
+- `nbSolutions` : ensembles d'objets distincts de `min` coups qui résolvent (l'ordre ne compte pas).
+- Part de bons coups par étape : un coup est bon si l'ensemble tracé reste inclus dans une solution minimale. `premier`, `moyenne`, `goulot` (pire étape, brut) et `goulotLibre` (sans les étapes guidées, utilisé dans le score).
+- `aux` : points construits servant d'appui, hors de la cible (min et max sur les solutions minimales).
+- `score = 1·min + 0,75·aux + 1·(−log2 goulotLibre) − 0,5·log2(min(nbSolutions, 4))` (constantes `POIDS`, `PLAFOND_SOLUTIONS`). Coup guidé = tracé d'un objet de la cible (droite, cercle), visible en pointillés ; créer un point cible ne l'est pas. Provisoire : contrôle de cohérence sur les niveaux existants, pas un calage.
 
 ## Règles non négociables
 
@@ -60,14 +76,14 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 
 ## Feuille de route
 
-1. **Générateur de niveaux** (`tools/generate.js`) : depuis une figure de départ, explorer les constructions atteignables en N coups, garder les objets qui apparaissent au coup N et pas avant, filtrer les « intéressants » (perpendiculaire, tangente, centre, angle remarquable, polygone régulier…), sortir des candidats avec leurs mesures. L'humain choisit.
-2. **Mesures de difficulté** calculées par le solveur : minimum de coups, nombre de solutions minimales, taux de fausses pistes (part des premiers coups qui mènent à une solution), points auxiliaires nécessaires. Plus tard, calage sur des données de jeu (temps, annulations, indices, abandons).
+1. ~~Générateur de niveaux~~ (fait : `tools/generate.js`, catalogue `src/catalog.js`). Reste : étendre le catalogue, ajouter des figures de départ, transformer un candidat choisi en niveau (textes, `refs`, `celebrate`).
+2. ~~Mesures de difficulté~~ (faites : `tools/metrics.js`). Reste : le goulot tombe presque toujours au dernier coup (guidé par l'objectif en pointillés), à repenser ; caler les `POIDS` sur des données de jeu (temps, annulations, indices, abandons).
 3. **Chapitres** : 10 à 12 chapitres de 12 à 15 niveaux, une idée par chapitre (outil ou notion), courbe en dents de scie (introduction → montée → respiration → défi final optionnel). Sources : Euclide Livres I, III, IV, VI + variantes (compas seul, outillage restreint, autre figure de départ).
 4. **Télémétrie de jeu** anonyme pour calibrer la difficulté.
 5. **Play Store** : emballer le même code avec Capacitor.
 
 ## Pièges connus
 
-- Le solveur explose au-delà de 4–5 coups : élaguer (signature géométrique, coups utiles seulement) avant de viser plus profond.
+- L'exploration explose avec la profondeur (outils règle, compas, médiatrice ; deux passes, cadrée et sans cadre) : N=4 tient en 1 min pour les 6 figures ; N=5 prend 8 à 17 s (segment, cercle sans centre), 6 à 8 min (droite + point, cercle + point) et dépasse 10 min pour le triangle et l'angle (arrêtés au budget vers 700 000 états). Règle et compas seuls : 3 à 8 fois plus rapide. Pour les niveaux à 5 coups : recherche ciblée par objectif plutôt qu'exhaustive (`--budget` pour borner un run).
 - Une figure de départ trop « régulière » crée des coïncidences (ex. P à la verticale de A) : choisir des positions génériques ; les tests le détectent.
 - Le service worker n'est enregistré qu'en HTTPS ; en local (`npm run dev`), pas de cache.
