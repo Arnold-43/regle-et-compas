@@ -15,20 +15,24 @@
  *                minimale / tous les coups possibles (distincts, dans le cadre).
  *                partEtape[k] = moyenne de cette part sur les bons états de l'étape k.
  *                  premier = partEtape[0], moyenne = moyenne des partEtape, goulot = min des partEtape.
- *                  goulotAvantDernier = min des partEtape sans la dernière étape (null si min = 1) :
- *                  information seulement. Le goulot tombe presque toujours au dernier coup, celui
- *                  que l'objectif en pointillés guide le plus.
+ *                Coups guidés : l'objectif est affiché en pointillés, donc un coup qui trace un objet
+ *                de la cible, ou qui crée un point cible, n'est pas cherché. Un bon état est guidé si
+ *                l'un de ses bons coups est guidé (le joueur peut le jouer sans chercher).
+ *                partLibre[k] = moyenne de la part de bons coups sur les bons états NON guidés de
+ *                l'étape k (null si tous le sont). goulotLibre = min des partLibre (1 s'il n'y a
+ *                aucune étape à chercher). C'est lui qui entre dans le score ; le goulot brut est
+ *                gardé pour comparaison (il tombe presque toujours au dernier coup, guidé).
  *   aux          points auxiliaires d'une solution : points construits (non donnés) servant d'appui
  *                à un tracé, qui ne sont ni un point cible ni sur une droite ou un cercle cible.
  *                auxMin / auxMax sur l'ensemble des solutions minimales.
  *   score        provisoire, voir POIDS ci-dessous.
  */
 import { build, solvedIn, onLine, onCircle, near } from '../src/engine.js';
-import { explore, racine, coups, etend, signature, cadre } from './explore.js';
+import { explore, racine, coups, etend, signature, cadre, cle } from './explore.js';
 
 /**
  * Score de difficulté provisoire (à recaler sur des données de jeu réelles) :
- *   score = coups·min + aux·auxMin + goulot·(−log2 goulot) − solutions·log2(nbSolutions)
+ *   score = coups·min + aux·auxMin + goulot·(−log2 goulotLibre) − solutions·log2(nbSolutions)
  *  - chaque coup du minimum compte pour 1 ;
  *  - un point auxiliaire est une idée à trouver ;
  *  - le goulot en bits : une étape où un coup sur 2 est bon coûte 1, un sur 8 coûte 3 ;
@@ -38,7 +42,7 @@ export const POIDS = { coups: 1, aux: 0.75, goulot: 1, solutions: 0.5 };
 
 export function score(m) {
   if (!Number.isFinite(m.min) || m.min === 0) return null;
-  return POIDS.coups * m.min + POIDS.aux * m.auxMin + POIDS.goulot * -Math.log2(m.goulot)
+  return POIDS.coups * m.min + POIDS.aux * m.auxMin + POIDS.goulot * -Math.log2(m.goulotLibre)
     - POIDS.solutions * Math.log2(m.nbSolutions);
 }
 
@@ -57,35 +61,48 @@ export function auxiliaires(lv, specs) {
   return aux.size;
 }
 
-/** Part de bons coups à chaque étape, à partir des solutions minimales connues. */
-export function bonsCoups(fig, solutions, min, outils, boite) {
+/**
+ * Part de bons coups à chaque étape, à partir des solutions minimales connues.
+ * @param alts  variantes de la cible aux points de départ (pour repérer les coups guidés)
+ */
+export function bonsCoups(fig, solutions, min, outils, boite, alts = []) {
+  const elems = alts.flat();
+  const clesCible = new Set(elems.filter((el) => el.k !== 'point').map(cle));
+  const ptsCible = elems.filter((el) => el.k === 'point').map((el) => el.p);
+  const guide = (c, e) => clesCible.has(c.cle) || e.nouveaux.some((q) => ptsCible.some((p) => near(p, q.p)));
   const ensembles = [...solutions.keys()].map((sig) => new Set(sig.split('|')));
   const inclus = (cles) => ensembles.some((E) => cles.every((k) => E.has(k)));
   let etage = [racine(fig)];
-  const partEtape = [];
+  const partEtape = [], partLibre = [];
   for (let k = 0; k < min; k++) {
-    let somme = 0;
+    let somme = 0, sommeLibre = 0, libres = 0;
     const suivant = new Map();
     for (const st of etage) {
       const cs = coups(st, outils, boite);
-      let bons = 0;
+      let bons = 0, guidee = false;
       for (const c of cs) {
         if (!inclus(st.cles.concat([c.cle]))) continue;
         bons++;
         const e = etend(st, c.spec, c.g, c.cle);
+        if (guide(c, e)) guidee = true;
         suivant.set(signature(e), e);
       }
-      somme += cs.length ? bons / cs.length : 0;
+      const part = cs.length ? bons / cs.length : 0;
+      somme += part;
+      if (!guidee) { sommeLibre += part; libres++; }
     }
     partEtape.push(somme / etage.length);
+    partLibre.push(libres ? sommeLibre / libres : null);
     etage = [...suivant.values()];
   }
+  const libresConnues = partLibre.filter((x) => x !== null);
   return {
     partEtape,
     premier: partEtape[0],
     moyenne: partEtape.reduce((a, b) => a + b, 0) / partEtape.length,
     goulot: Math.min(...partEtape),
-    goulotAvantDernier: partEtape.length > 1 ? Math.min(...partEtape.slice(0, -1)) : null,
+    partLibre,
+    goulotLibre: libresConnues.length ? Math.min(...libresConnues) : 1,
   };
 }
 
@@ -100,7 +117,7 @@ export function mesuresDe(fig, cible, rc, rt, outils, boite) {
   const m = { min: rc.min, minTheorique: rt ? rt.min : rc.min, nbSolutions: rc.solutions.size };
   if (Number.isFinite(rc.min) && rc.min > 0) {
     const lv = { ...fig, target: cible.target };
-    Object.assign(m, bonsCoups(fig, rc.solutions, rc.min, outils, boite));
+    Object.assign(m, bonsCoups(fig, rc.solutions, rc.min, outils, boite, cible.target(fig.pts)));
     const aux = [...rc.solutions.values()].map((s) => auxiliaires(lv, s));
     m.auxMin = Math.min(...aux);
     m.auxMax = Math.max(...aux);
@@ -127,14 +144,14 @@ export { pc };
 // ---------- ligne de commande ----------
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { LEVELS } = await import('../src/levels.js');
-  console.log('Niveau  par  min  sol  1er coup  moyenne  goulot  avant-dernier  aux    score');
+  console.log('Niveau  par  min  sol  1er coup  moyenne  goulot brut  goulot libre  aux    score');
   for (const lv of LEVELS) {
     const t0 = Date.now();
     const m = mesureNiveau(lv);
     console.log(
       `${lv.id.padEnd(6)}  ${String(lv.par).padStart(3)}  ${fmt(m.min).padStart(3)}  ${String(m.nbSolutions).padStart(3)}` +
-      `  ${pc(m.premier).padStart(8)}  ${pc(m.moyenne).padStart(7)}  ${pc(m.goulot).padStart(6)}` +
-      `  ${pc(m.goulotAvantDernier ?? undefined).padStart(13)}` +
+      `  ${pc(m.premier).padStart(8)}  ${pc(m.moyenne).padStart(7)}  ${pc(m.goulot).padStart(11)}` +
+      `  ${pc(m.goulotLibre).padStart(12)}` +
       `  ${`${m.auxMin}–${m.auxMax}`.padEnd(5)}  ${fmt(m.score).padStart(5)}` +
       `${m.cadreDiffere ? '  ⚠ minimum hors cadre ' + m.minTheorique : ''}  (${Date.now() - t0} ms)`,
     );

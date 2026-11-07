@@ -149,11 +149,13 @@ function passePar(t, a, b, X) {
  * le minimum de coups et toutes les solutions minimales (ensembles d'objets distincts).
  * @param fig     {pts, given, hidden?}
  * @param cibles  [{target(G) → [[géométries]]}]
- * @param opts    {n, outils, boite (null = sans cadre)}
+ * @param opts    {n, outils, boite (null = sans cadre), limiteMs (budget de temps, optionnel)}
+ *                 Budget dépassé : lève une erreur {interrompu: true, etats, ms} — aucun résultat
+ *                 partiel n'est rendu, car il ne serait pas exact.
  * @returns {resultats: [{min, solutions: Map<signature, specs>}], etats, ms}
  *          min = Infinity si la cible n'est pas atteinte en n coups ; 0 si elle est déjà là.
  */
-export function explore(fig, cibles, { n, outils, boite = null }) {
+export function explore(fig, cibles, { n, outils, boite = null, limiteMs = Infinity }) {
   const t0 = Date.now();
   const C = cibles.map((c) => prepareCible(fig, c));
   const res = C.map(() => ({ min: Infinity, solutions: new Map(), attente: new Map(), rejets: new Set() }));
@@ -235,6 +237,9 @@ export function explore(fig, cibles, { n, outils, boite = null }) {
       if (vus.has(sig)) continue;
       vus.add(sig);
       etats++;
+      if ((etats & 1023) === 0 && Date.now() - t0 > limiteMs) {
+        throw Object.assign(new Error(`budget dépassé après ${etats} états`), { interrompu: true, etats, ms: Date.now() - t0 });
+      }
       detecte(e);
       visite(e);
     }

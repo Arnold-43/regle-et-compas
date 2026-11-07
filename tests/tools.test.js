@@ -68,3 +68,14 @@ test('générateur, test de fumée : segment seul en 2 coups', async () => {
   assert.ok(resume(r).includes('médiatrice de [AB]'));
   JSON.stringify(r);
 });
+
+test('coups guidés : les deux côtés du triangle équilatéral (I.1) ne comptent pas dans le goulot libre', () => {
+  const m = mesureNiveau(LEVELS.find((l) => l.id === 'I.1'));
+  assert.deepEqual(m.partLibre.slice(2), [null, null]);
+  assert.ok(m.goulotLibre > m.goulot);
+});
+
+test("budget de temps : l'exploration s'arrête sans rendre de résultat partiel", () => {
+  const lv = LEVELS.find((l) => l.id === 'I.31');
+  assert.throws(() => explore(lv, [{ target: (G) => lv.target(G) }], { n: 4, outils: lv.tools, limiteMs: 0 }), (e) => e.interrompu === true);
+});
