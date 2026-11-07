@@ -55,7 +55,7 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 - `nbSolutions` : ensembles d'objets distincts de `min` coups qui résolvent (l'ordre ne compte pas).
 - Part de bons coups par étape : un coup est bon si l'ensemble tracé reste inclus dans une solution minimale. `premier`, `moyenne`, `goulot` (pire étape, brut) et `goulotLibre` (sans les étapes guidées, utilisé dans le score).
 - `aux` : points construits servant d'appui, hors de la cible (min et max sur les solutions minimales).
-- `score = 1·min + 0,75·aux + 1·(−log2 goulotLibre) − 0,5·log2(min(nbSolutions, 4))` (constantes `POIDS`, `PLAFOND_SOLUTIONS`). Coup guidé = tracé d'un objet de la cible (droite, cercle), visible en pointillés ; créer un point cible ne l'est pas. Provisoire : contrôle de cohérence sur les niveaux existants, pas un calage.
+- `score = 1·min + 0,75·aux + 1·(−log2 goulotLibre) − 0,5·log2(min(nbSolutions, 4))` (constantes `POIDS`, `PLAFOND_SOLUTIONS`). Coup guidé = tracé d'un objet de la cible (droite, cercle), visible en pointillés ; créer un point cible ne l'est pas, mais le joueur vise le point : la part de bons coups se calcule alors parmi les tracés qui passent par un point cible manquant. Provisoire : contrôle de cohérence sur les niveaux existants, pas un calage.
 
 ## Règles non négociables
 
