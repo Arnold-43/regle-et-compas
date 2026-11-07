@@ -217,11 +217,11 @@ function angles() {
       const g = this.target(G)[alt][0], u = unit(sub(G.B, G.A)), w = this.rayon(G, g);
       const sens = Math.sign(cross(u, w)) || 1;
       const out = [];
-      if (o.moitie) out.push({ wedge: [G.A, u, rot(u, [0, 0], sens * o.moitie)], fill: 'red', r: 74 });
-      out.push({ wedge: [G.A, u, w], fill: 'yellow', r: 56 });
+      if (o.moitie) out.push({ wedge: [G.A, u, rot(u, [0, 0], sens * o.moitie)], fill: 'red', r: 96 });
+      out.push({ wedge: [G.A, u, w], fill: 'yellow', r: 78 });
       out.push({ line: g, stroke: 'blue' });
       out.push({ seg: [G.A, G.B], stroke: 'red' });
-      out.push({ label: [add(G.A, mul(unit(add(u, w)), 78)), `${deg}°`] });
+      out.push({ label: [G.A, `${deg}°`], dir: unit(add(u, w)), off: o.moitie ? 112 : 96 });
       return out;
     },
     ...o,

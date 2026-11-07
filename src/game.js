@@ -4,6 +4,10 @@
  */
 import * as RC from './engine.js';
 import { LEVELS } from './levels.js';
+import { CHAPITRES, ORDRE, niveauxDe, niveauOuvert, chapitreOuvert, premierAJouer, position } from './chapters.js';
+
+// Niveaux dans l'ordre des chapitres (écran des niveaux, « Niveau suivant »).
+const NIVEAUX = ORDRE.map((id) => LEVELS.find((l) => l.id === id));
 import { VERSION } from './version.js';
 
 const $ = (id) => document.getElementById(id);
@@ -38,18 +42,25 @@ const KEY = 'regle-compas-v1';
 let prog = { done: {}, seenHelp: false, lastVersion: null };
 try { const raw = localStorage.getItem(KEY); if (raw) prog = Object.assign(prog, JSON.parse(raw)); } catch (e) { /* stockage indisponible */ }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(prog)); } catch (e) { /* ignore */ } }
-const lv = () => LEVELS[S.li];
+const lv = () => NIVEAUX[S.li];
 const maxMoves = () => lv().par + lv().extra;
 const outOfMoves = () => S.specs.length >= maxMoves();
-const done = (i) => prog.done[LEVELS[i].id] || {};
-const unlocked = (i) => i === 0 || !!done(i - 1).solved;
-function firstOpen() {
-  for (let i = 0; i < LEVELS.length; i++) {
-    if (!unlocked(i)) return Math.max(0, i - 1);
-    if (!done(i).solved) return i;
-  }
-  return 0;
+const done = (i) => prog.done[NIVEAUX[i].id] || {};
+const unlocked = (i) => niveauOuvert(prog, NIVEAUX[i].id);
+const firstOpen = () => Math.max(0, ORDRE.indexOf(premierAJouer(prog)));
+/** Ligne d'en-tête : la proposition d'Euclide, sinon la place dans le chapitre. */
+function eyebrowOf(L, suffixe) {
+  if (L.prop) return `Euclide · Livre I · Proposition ${L.prop}` + (suffixe ? ` · ${suffixe}` : '');
+  const p = position(L.id);
+  return `Chapitre ${p.chapitre.numero} · ${p.chapitre.titre} · ${p.rang}/${p.total}` + (suffixe ? ` · ${suffixe}` : '');
 }
+/** Pastille d'un niveau dans la liste : I.10 pour Euclide, 2.3 sinon. */
+function badgeOf(L) {
+  if (L.prop) return L.id;
+  const p = position(L.id);
+  return `${p.chapitre.numero}.${p.rang}`;
+}
+const hasNext = () => S.li < NIVEAUX.length - 1 && unlocked(S.li + 1);
 
 // ---------- couleurs depuis les jetons CSS ----------
 function readColors() {
@@ -163,6 +174,14 @@ function drawShape(c, v, sh, p) {
     const s = T(v, sh.dot);
     c.globalAlpha = p; c.fillStyle = k(sh.fill);
     c.beginPath(); c.arc(s[0], s[1], 4.5, 0, Math.PI * 2); c.fill();
+  } else if (sh.label) {
+    // label: [point, texte], dir: direction (unitaire) du décalage, off: décalage en pixels écran
+    const s0 = T(v, sh.label[0]), dv = sh.dir || [0, 0], o = sh.off || 0;
+    const s = [s0[0] + dv[0] * o, s0[1] + dv[1] * o];
+    c.globalAlpha = p; c.fillStyle = k(sh.fill || 'ink');
+    c.font = 'italic 20px "Libre Caslon Text", Georgia, serif';
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(sh.label[1], s[0], s[1]);
   } else if (sh.ticks) {
     const s = T(v, sh.ticks[0]), u = sh.ticks[1], n = [-u[1], u[0]];
     c.globalAlpha = p; c.strokeStyle = col.red; c.lineWidth = 2;
@@ -449,7 +468,7 @@ function win(alt) {
   d.best = Math.min(d.best || Infinity, n);
   prog.done[L.id] = d; save();
 
-  $('sheetEyebrow').textContent = `Euclide ${L.id} · résolu`;
+  $('sheetEyebrow').textContent = L.prop ? `Euclide ${L.id} · résolu` : eyebrowOf(L, 'résolu');
   $('sheetMoves').textContent = n;
   $('sheetUnit').textContent = n > 1 ? 'coups' : 'coup';
   $('sheetStarMark').dataset.on = star ? '1' : '0';
@@ -459,7 +478,7 @@ function win(alt) {
       ? `Résolu avec un indice. L’étoile se gagne sans aide, en ${L.par} coups.`
       : `Le minimum est de ${L.par} coups. Rejoue pour décrocher l’étoile.`;
   $('sheetUnlock').hidden = !(L.unlocks === 'med' && first);
-  $('nextBtn').textContent = S.li === LEVELS.length - 1 ? 'Voir les niveaux' : 'Niveau suivant';
+  $('nextBtn').textContent = hasNext() ? 'Niveau suivant' : 'Voir les niveaux';
   updateUI(); render();
   setTimeout(() => { if (S.solved) openSheet(); }, DUR ? 950 : 0);
 }
@@ -523,7 +542,7 @@ function toast(msg, ms) {
 }
 function updateUI() {
   const L = lv(), n = S.specs.length, m = maxMoves();
-  $('eyebrow').textContent = `Euclide · Livre I · Proposition ${L.prop}`;
+  $('eyebrow').textContent = eyebrowOf(L);
   $('title').textContent = L.title;
   $('goal').textContent = L.goal;
   $('moves').innerHTML = `${n}<span>/${m}</span>`;
@@ -565,23 +584,40 @@ function renderLevels() {
   const ul = $('lvList');
   ul.innerHTML = '';
   let stars = 0, solved = 0;
-  LEVELS.forEach((L, i) => {
-    const d = done(i), un = unlocked(i);
-    if (d.star) stars++;
-    if (d.solved) solved++;
-    const st = !un ? ['locked', 'Verrouillé'] : d.star ? ['star', '★ Étoile'] : d.solved ? ['done', 'Résolu'] : ['todo', 'À faire'];
-    const li = document.createElement('li');
-    const b = document.createElement('button');
-    b.className = 'lv'; b.disabled = !un;
-    if (i === S.li) b.setAttribute('aria-current', 'true');
-    b.innerHTML = `<span class="lv-prop">${L.id}</span>` +
-      `<span><span class="lv-title">${L.title}</span><span class="lv-meta">` +
-      (d.best ? `Meilleur : ${d.best} coups · minimum ${L.par}` : `Minimum : ${L.par} coups`) +
-      `</span></span><span class="chip" data-s="${st[0]}">${st[1]}</span>`;
-    b.addEventListener('click', () => { closeLevels(); loadLevel(i); });
-    li.appendChild(b); ul.appendChild(li);
-  });
-  $('lvTally').textContent = `${solved} sur ${LEVELS.length} résolus · ${stars} étoile${stars > 1 ? 's' : ''}`;
+  for (const ch of CHAPITRES) {
+    const ouvert = chapitreOuvert(prog, ch);
+    const k = CHAPITRES.indexOf(ch);
+    const head = document.createElement('li');
+    head.className = 'lv-ch';
+    head.dataset.locked = ouvert ? '' : '1';
+    head.innerHTML = `<span class="lv-ch-num">Chapitre ${ch.numero}</span>` +
+      `<span class="lv-ch-title">${ch.titre}</span>` +
+      `<span class="lv-ch-idea">${ouvert ? ch.idee : `Réussis les niveaux du chapitre ${CHAPITRES[k - 1].numero} pour l’ouvrir.`}</span>`;
+    ul.appendChild(head);
+    for (const id of niveauxDe(ch)) {
+      const i = ORDRE.indexOf(id), d = done(i);
+      if (d.star) stars++;
+      if (d.solved) solved++;
+      ul.appendChild(levelItem(i, d));
+    }
+  }
+  $('lvTally').textContent = `${solved} sur ${NIVEAUX.length} résolus · ${stars} étoile${stars > 1 ? 's' : ''}`;
+}
+function levelItem(i, d) {
+  const L = NIVEAUX[i], un = unlocked(i);
+  const st = !un ? ['locked', 'Verrouillé'] : d.star ? ['star', '★ Étoile'] : d.solved ? ['done', 'Résolu'] : ['todo', 'À faire'];
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.className = 'lv'; b.disabled = !un;
+  if (i === S.li) b.setAttribute('aria-current', 'true');
+  b.innerHTML = `<span class="lv-prop">${badgeOf(L)}</span>` +
+    `<span><span class="lv-title">${L.title}</span><span class="lv-meta">` +
+    (L.defi ? 'Défi · optionnel · ' : '') +
+    (d.best ? `Meilleur : ${d.best} coups · minimum ${L.par}` : `Minimum : ${L.par} coups`) +
+    `</span></span><span class="chip" data-s="${st[0]}">${st[1]}</span>`;
+  b.addEventListener('click', () => { closeLevels(); loadLevel(i); });
+  li.appendChild(b);
+  return li;
 }
 function openLevels() {
   renderLevels();
@@ -607,8 +643,8 @@ $('fitBtn').addEventListener('click', fitView);
 $('menuBtn').addEventListener('click', openLevels);
 $('closeLevels').addEventListener('click', closeLevels);
 $('nextBtn').addEventListener('click', () => {
-  if (S.li === LEVELS.length - 1) openLevels();
-  else loadLevel(S.li + 1);
+  if (hasNext()) loadLevel(S.li + 1);
+  else openLevels();
 });
 $('replayBtn').addEventListener('click', () => loadLevel(S.li));
 $('wipeBtn').addEventListener('click', () => {

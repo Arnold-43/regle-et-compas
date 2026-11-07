@@ -3,7 +3,7 @@
 // __CACHE__ est remplacé au build par un nom unique par version.
 const CACHE = '__CACHE__';
 const CORE = [
-  './', './index.html', './styles.css', './game.js', './engine.js', './levels.js', './catalog.js', './version.js',
+  './', './index.html', './styles.css', './game.js', './engine.js', './levels.js', './catalog.js', './chapters.js', './version.js',
   './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png',
 ];
 
