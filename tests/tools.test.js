@@ -57,3 +57,14 @@ test('I.10 : mesures connues (3 coups, 1 solution, 2 bons premiers coups sur 3, 
   assert.ok(Math.abs(m.premier - 2 / 3) < 1e-9);
   assert.equal(m.auxMin, 0);
 });
+
+test('générateur, test de fumée : segment seul en 2 coups', async () => {
+  const { genere, resume } = await import('../tools/generate.js');
+  const r = genere('segment', { n: 2 });
+  const par = (id) => r.candidats.find((c) => c.cible === id);
+  assert.equal(par('mediatrice').min, 1);
+  assert.equal(par('milieu').min, 1); // la médiatrice coupe le segment donné en son milieu
+  assert.equal(par('triangle-equilateral').min, Infinity);
+  assert.ok(resume(r).includes('médiatrice de [AB]'));
+  JSON.stringify(r);
+});
