@@ -84,6 +84,6 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 
 ## Pièges connus
 
-- L'exploration explose avec la profondeur (outils règle, compas, médiatrice ; deux passes, cadrée et sans cadre) : N=4 tient en 1 min pour les 6 figures ; N=5 prend 8 à 17 s (segment, cercle sans centre), 6 à 8 min (droite + point, cercle + point) et dépasse 10 min pour le triangle et l'angle (arrêtés au budget vers 700 000 états). Règle et compas seuls : 3 à 8 fois plus rapide. Pour les niveaux à 5 coups : recherche ciblée par objectif plutôt qu'exhaustive (`--budget` pour borner un run).
+- L'exploration explose avec la profondeur (outils règle, compas, médiatrice ; deux passes, cadrée et sans cadre) : N=4 tient en 1 min pour les 6 figures ; N=5 prend 8 à 17 s (segment, cercle sans centre), 6 à 8 min (droite + point, cercle + point) et dépasse 10 min pour le triangle et l'angle (arrêtés au budget vers 700 000 états). Règle et compas seuls : 3 à 8 fois plus rapide ; N=5 y tient en 1 s à 3 min par figure, sauf l'angle (passe cadrée seule, environ 8 min). Pour les niveaux à 5 coups : recherche ciblée par objectif plutôt qu'exhaustive (`--budget` pour borner un run).
 - Une figure de départ trop « régulière » crée des coïncidences (ex. P à la verticale de A) : choisir des positions génériques ; les tests le détectent.
 - Le service worker n'est enregistré qu'en HTTPS ; en local (`npm run dev`), pas de cache.
