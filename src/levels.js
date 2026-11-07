@@ -25,8 +25,11 @@
  */
 import { add, sub, mul, dot, unit, perp, cross, rot } from './engine.js';
 import { cible, sommetsEquilateral, perpendiculaire, bissectrice, parallele } from './catalog.js';
+import { FICHES, depuisFiche } from './fiches.js';
+import { CERTIFICATS } from './certificats.js';
 
-export const LEVELS = [
+/** Niveaux écrits à la main (chapitres 1 et 2) : comportement figé, certifiés comme les autres. */
+export const NIVEAUX_ECRITS = [
   {
     id: 'I.1', prop: 1, title: 'Triangle équilatéral',
     goal: 'Construis un triangle équilatéral sur le segment AB.',
@@ -187,6 +190,11 @@ export const LEVELS = [
   },
   ...angles(),
 ];
+
+/** Fiche acceptée : certifiée et non rejetée par les garde-fous (voir tools/certify.js). */
+export const ficheAcceptee = (f) => !!(CERTIFICATS[f.id] && !CERTIFICATS[f.id].rejet);
+
+export const LEVELS = NIVEAUX_ECRITS.concat(FICHES.filter(ficheAcceptee).map((f) => depuisFiche(f, CERTIFICATS[f.id])));
 
 /**
  * Chapitre 2 — Les angles. Figure : un segment AB ; objectif : une droite par A qui fait l'angle voulu

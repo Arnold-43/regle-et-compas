@@ -178,6 +178,7 @@ h1 { margin: 3px 0 0; font: 400 25px/1.1 var(--f-display); text-wrap: balance; }
 .lv-foot { margin-top: 22px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; color: var(--muted); font: 400 13px/1.4 var(--f-ui); }
 .textbtn { border: 0; background: transparent; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px 0; font: 500 13px/1.4 var(--f-ui); }
 .version {
+  cursor: default; -webkit-user-select: none; user-select: none;
   margin: 28px 0 0; padding-top: 14px; border-top: 1px solid var(--rule);
   font: 500 12px/1.5 var(--f-ui); color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .02em;
   -webkit-user-select: text; user-select: text;

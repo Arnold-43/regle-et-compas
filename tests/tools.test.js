@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { build, solvedIn, verify, rng } from '../src/engine.js';
-import { LEVELS } from '../src/levels.js';
+import { NIVEAUX_ECRITS as LEVELS } from '../src/levels.js'; // échantillon fixe : les 10 niveaux écrits à la main
 import { candidateMoves, signature as sigSolveur } from '../tools/solver.js';
 import { racine, etend, coups, explore } from '../tools/explore.js';
 import { mesureNiveau } from '../tools/metrics.js';
