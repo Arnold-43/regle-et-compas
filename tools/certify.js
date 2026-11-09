@@ -18,7 +18,8 @@ import { writeFileSync, readFileSync } from 'node:fs';
 import { build, solvedIn, verify, refToSpecs, hint, geomOf, isDuplicate, onLine, onCircle, near, mul, sub, unit, perp, dist } from '../src/engine.js';
 import { NIVEAUX_ECRITS } from '../src/levels.js';
 import { FICHES, depuisFiche } from '../src/fiches.js';
-import { explore, cadre } from './explore.js';
+import { explore, cadre, ZOOM_MIN } from './explore.js';
+import { boiteFigure, occupation, CANEVAS } from './occupation.js';
 import { mesuresDe, auxiliaires } from './metrics.js';
 
 const FICHIER = new URL('../src/certificats.js', import.meta.url);
@@ -65,27 +66,46 @@ function versRef(id) {
 }
 const versRefs = (specs) => specs.map((s) => ({ t: s.t, a: versRef(s.a), b: versRef(s.b) }));
 
-/** Cadrage : figure, points des solutions retenues, points cibles et cercles donnés, avec une marge. */
+/**
+ * Cadrage : la vue initiale encadre la figure de départ et l'objectif, avec une marge, au format du
+ * téléphone de référence (tools/occupation.js). Puis on l'élargit juste ce qu'il faut pour que chaque point
+ * des solutions retenues reste visible au zoom arrière maximal du jeu (cadre()).
+ */
 function cadrage(lv, solutions, alts) {
-  const P = [];
-  for (const id of Object.keys(lv.pts)) if (!(lv.hidden || []).includes(id)) P.push(lv.pts[id]);
+  const [x0, y0, x1, y1] = boiteFigure(lv);
+  const P = [[x0, y0], [x1, y1]];
+  for (const alt of alts) for (const el of alt) {
+    if (el.k === 'point') P.push(el.p);
+    else if (el.k === 'circle') P.push([el.c[0] - el.r, el.c[1] - el.r], [el.c[0] + el.r, el.c[1] + el.r]);
+  }
+  let a0 = Math.min(...P.map((p) => p[0])), a1 = Math.max(...P.map((p) => p[0]));
+  let b0 = Math.min(...P.map((p) => p[1])), b1 = Math.max(...P.map((p) => p[1]));
+  const m = 0.12 * Math.max(a1 - a0, b1 - b0) + 12;
+  a0 -= m; a1 += m; b0 -= m; b1 += m + 10; // un peu plus en bas : les lettres sous les points
+  // au format du canevas (la vue remplit l'écran, et le cadre de zoom arrière est exact)
+  const r = (CANEVAS[0] - 16) / (CANEVAS[1] - 16);
+  let w = a1 - a0, h = b1 - b0;
+  if (w / h > r) { const dh = w / r - h; b0 -= dh / 2; b1 += dh / 2; h = w / r; } else { const dw = h * r - w; a0 -= dw / 2; a1 += dw / 2; w = h * r; }
+  // la solution doit rester visible au zoom arrière maximal : sinon on élargit la vue autour de son centre
+  const cx = (a0 + a1) / 2, cy = (b0 + b1) / 2;
+  let k = 1;
   for (const specs of solutions) {
     const b = build(lv, lv.pts, specs);
-    for (const s of specs) for (const id of [s.a, s.b]) P.push(b.byId.get(id).p);
+    for (const st of specs) for (const id of [st.a, st.b]) {
+      const q = b.byId.get(id).p, demi = [(w / 2) / ZOOM_MIN, (h / 2) / ZOOM_MIN];
+      k = Math.max(k, (Math.abs(q[0] - cx) * 1.05) / demi[0], (Math.abs(q[1] - cy) * 1.05) / demi[1]);
+    }
   }
-  for (const alt of alts) for (const el of alt) if (el.k === 'point') P.push(el.p);
-  for (const g of lv.given) if (g.t === 'circle') {
-    const C = lv.pts[g.a], r = dist(C, lv.pts[g.b]);
-    P.push([C[0] - r, C[1] - r], [C[0] + r, C[1] + r]);
-  }
-  let x0 = Math.min(...P.map((p) => p[0])), x1 = Math.max(...P.map((p) => p[0]));
-  let y0 = Math.min(...P.map((p) => p[1])), y1 = Math.max(...P.map((p) => p[1]));
-  const m = 0.15 * Math.max(x1 - x0, y1 - y0) + 14;
-  x0 -= m; x1 += m; y0 -= m; y1 += m;
-  const w = x1 - x0, h = y1 - y0, min = 0.8 * Math.max(w, h);
-  if (w < min) { x0 -= (min - w) / 2; x1 += (min - w) / 2; }
-  if (h < min) { y0 -= (min - h) / 2; y1 += (min - h) / 2; }
-  return [x0, y0, x1, y1].map((v) => Math.round(v));
+  return [cx - (w / 2) * k, cy - (h / 2) * k, cx + (w / 2) * k, cy + (h / 2) * k].map((v) => Math.round(v));
+}
+
+/** Points de départ visibles qui ne servent ni à l'objectif ni à aucune solution minimale. */
+function pointsDecoratifs(lv, solutions) {
+  const sert = new Set();
+  const visite = (v) => { if (typeof v === 'string') sert.add(v); else if (Array.isArray(v)) v.forEach(visite); else if (v && typeof v === 'object') Object.values(v).forEach(visite); };
+  visite(lv.objectif.args);
+  for (const specs of solutions) for (const st of specs) { sert.add(st.a); sert.add(st.b); }
+  return Object.keys(lv.pts).filter((id) => !(lv.hidden || []).includes(id) && !sert.has(id));
 }
 
 /** Lettres : pour chaque point donné, la direction la plus éloignée des tracés qui passent par lui. */
@@ -154,6 +174,8 @@ export function certifierFiche(f, { limiteMs }) {
     if (!parAlt.has(a) || aux < parAlt.get(a).aux) parAlt.set(a, { specs, aux });
   }
   if (!parAlt.size) return rejet('aucune solution minimale sans coïncidence');
+  const deco = pointsDecoratifs(lv0, [...rt.solutions.values()]);
+  if (deco.length) return rejet(`point décoratif : ${deco.join(', ')} ne sert ni à l'objectif ni à aucune solution minimale`);
   const solutions = [...parAlt.entries()].sort((x, y) => x[0] - y[0]).map(([, v]) => v.specs);
   const view = cadrage(lv0, solutions, alts);
   const boite = cadre(view);
@@ -167,7 +189,7 @@ export function certifierFiche(f, { limiteMs }) {
   const cert = {
     ...base, par: min, minCadre: rc.min, nbSolutions: rt.solutions.size, score: arrondi(m.score),
     refs: solutions.map(versRefs), view, lab: lettres(lv0, solutions), ghostAlt: [...parAlt.keys()].sort()[0],
-    mesures: { premier: arrondi(m.premier), goulotLibre: arrondi(m.goulotLibre), auxMin: m.auxMin },
+    mesures: { premier: arrondi(m.premier), goulotLibre: arrondi(m.goulotLibre), auxMin: m.auxMin, occupation: arrondi(occupation(lv0, view)) },
   };
   // vérifications de bout en bout sur le niveau construit
   const lv = depuisFiche(f, cert);

@@ -94,3 +94,56 @@ test('dents de scie : facile → dur, une respiration aux deux tiers', async () 
   assert.deepEqual(dentsDeScie(Object.keys(sc), (k) => sc[k]), ['a', 'c', 'd', 'b', 'e', 'f']);
   assert.deepEqual(dentsDeScie(['c', 'a', 'b'], (k) => sc[k]), ['a', 'b', 'c']);
 });
+
+test('garde-fous de contenu (tools/garde-fous.js) : aucune violation', async () => {
+  const { violations } = await import('../tools/garde-fous.js');
+  assert.deepEqual(violations(), []);
+});
+
+test('aucun niveau n’arrive avant ses prérequis', async () => {
+  const { FICHES } = await import('../src/fiches.js');
+  for (const f of FICHES) for (const p of f.apres || []) {
+    if (!ORDRE.includes(f.id)) continue;
+    assert.ok(ORDRE.includes(p), `${f.id} : prérequis ${p} absent du jeu`);
+    assert.ok(ORDRE.indexOf(p) < ORDRE.indexOf(f.id), `${f.id} arrive avant ${p}`);
+  }
+});
+
+test('ordonner : prérequis d’abord, puis dents de scie, sans deux cibles identiques à la suite', async () => {
+  const { ordonner } = await import('../src/chapters.js');
+  const sc = { a: 1, b: 2, c: 3, d: 4, e: 5 };
+  const ap = { a: ['d'] };
+  const o = ordonner(Object.keys(sc), { score: (k) => sc[k], apres: (k) => ap[k] || [] });
+  assert.ok(o.indexOf('d') < o.indexOf('a'));
+  const cib = { a: 'x', b: 'x', c: 'y', d: 'z', e: 'w' };
+  const o2 = ordonner(['a', 'b', 'c'], { score: (k) => sc[k], cible: (k) => cib[k] });
+  for (let i = 1; i < o2.length; i++) assert.notEqual(cib[o2[i]], cib[o2[i - 1]]);
+});
+
+test('mise à jour : un chapitre ouvert en 0.3.0 ne se referme pas quand ses niveaux changent', async () => {
+  const { REQUIS_PUBLIES, chapitreOuvert } = await import('../src/chapters.js');
+  const v = REQUIS_PUBLIES['0.3.0'];
+  const ch = (id) => CHAPITRES.find((c) => c.id === id);
+  const base = [...BASES, 'angle-60', 'angle-30', 'angle-45'];
+  // chapitre 3 fini selon la liste de 0.3.0 (dont des niveaux retirés depuis) : le chapitre 4 reste ouvert
+  assert.ok(chapitreOuvert(prog(...base, ...v.cercle), ch('sans-mediatrice')));
+  // idem pour chaque chapitre publié en 0.3.0
+  let tout = [...base];
+  for (const [id, requis] of Object.entries(v)) {
+    tout = tout.concat(requis);
+    const k = CHAPITRES.findIndex((c) => c.id === id);
+    if (k >= 0 && k + 1 < CHAPITRES.length) assert.ok(chapitreOuvert(prog(...tout), CHAPITRES[k + 1]), CHAPITRES[k + 1].titre);
+  }
+  // un niveau réussi dans un chapitre (même retiré depuis) prouve qu'il était ouvert
+  assert.ok(chapitreOuvert(prog(...base, 'sm-bissectrice-b'), ch('sans-mediatrice')));
+  // sans rien de tout cela, le chapitre 4 reste fermé
+  assert.ok(!chapitreOuvert(prog(...base), ch('sans-mediatrice')));
+});
+
+test('mise à jour : un niveau déjà réussi reste ouvert, même si un niveau est inséré avant lui', () => {
+  for (const id of ORDRE) {
+    const ch = chapitreDe(id);
+    const p = prog(...CHAPITRES.slice(0, CHAPITRES.indexOf(ch)).flatMap((c) => c.niveaux), id);
+    assert.ok(niveauOuvert(p, id), id);
+  }
+});

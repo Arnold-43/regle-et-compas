@@ -18,21 +18,24 @@ CLAUDE.md. Le score est provisoire (plus il est haut, plus c'est dur) : il sert 
 | 5 | Centres et tangentes | Les droites remarquables deviennent des outils. | #2, #19 (+ bissectrice) | #18 |
 | 6 | Carrés et partages | Reporter des longueurs pour bâtir et partager. | #7, #14 | #20 |
 
-État : chapitre 1 publié ; chapitre 2 ajouté en 0.2.0 ; chapitres 3 à 6 ajoutés en 0.3.0 (55 niveaux en tout).
+État : chapitre 1 publié ; chapitre 2 en 0.2.0 ; chapitres 3 à 6 en 0.3.0 (55 niveaux), revus en 0.3.2
+pour la qualité : **50 niveaux, sans doublon**, avec prérequis et cadrage à la taille du téléphone.
 
-Depuis 0.3.0, les niveaux des chapitres 3 à 6 sont des fiches (`src/fiches.js`), certifiées par
-`npm run certify`. L'ordre de jeu est calculé d'après les scores, en dents de scie (`src/chapters.js`).
+Les niveaux des chapitres 3 à 6 sont des fiches (`src/fiches.js`), certifiées par `npm run certify` et
+contrôlées par `tools/garde-fous.js`. L'ordre de jeu est calculé : prérequis (`apres`), puis dents de scie
+d'après le score, en espaçant les variantes d'une même cible.
 
-| Ch. | Niveaux requis | Défi | Remarque |
+| Ch. | Niveaux | Cibles distinctes | Défi |
 |---|---|---|---|
-| 3 Le cercle donné | 11 | centre du cercle effacé, règle et compas (5 coups, 10,9) | carrés et triangles inscrits ajoutés au catalogue |
-| 4 Sans médiatrice | 11 | Thalès : perpendiculaire en C (3 coups, 8,3) | les deux bissectrices (9,2 et 9,5) sont plus dures que le défi, comme dans la carte |
-| 5 Centres et tangentes | 9 | centre du cercle inscrit (4 coups, 9,3) | la bissectrice remplace « deux tangentes » (10,5, plus dur que le défi) |
-| 6 Carrés et partages | 10 | partage en 3 dans l'angle, règle et compas (5 coups, 9,9) | parallélogramme, partage en 4 et report de longueur ajoutés au catalogue |
+| 3 Le cercle donné | 11 | 8 | centre du cercle effacé, règle et compas (5 coups, 10,9) |
+| 4 Sans médiatrice | 10 | 10 | bissectrice à la manière d'Euclide (4 coups, 9,2) |
+| 5 Centres et tangentes | 10 | 9 | les deux tangentes depuis un point (5 coups, 10,5) |
+| 6 Carrés et partages | 9 | 7 | partage en 3 dans l'angle, règle et compas (5 coups, 10,9) |
 
-Fiches écartées : partage en 4 à la règle et au compas (aucune solution en 5 coups au plus), deux
-tangentes (plus dur que le défi), second centre inscrit (doublon du défi), milieu de [AP] en règle et
-compas (hors thème).
+Changements de 0.3.2 par rapport à 0.3.0 : 5 clones retirés (même cible, même score), doublons trop
+proches retirés (même cible, mêmes outils, écart de score < 1,5), point P inutile retiré des cercles,
+défis choisis comme le niveau le plus dur, nouveaux exercices (milieu d'un arc, symétrique, angle de 75°,
+centre de gravité, orthocentre, losange, carré à la règle et au compas). Le détail est dans la PR 0.3.2.
 
 ## Les 20 candidats
 
