@@ -222,7 +222,8 @@ export function verify(level, specs, seed = 20261107) {
 // Une référence est une liste d'étapes {t, a, b} dont les points sont :
 //  - un id de point donné ('A'),
 //  - ou une intersection {x:[i, j], pick} entre deux étapes (index) ou objets donnés (id),
-//    départagée par pick:'top'|'bottom', not:'A', near:'B' ou far:'O'.
+//    départagée par pick:'top'|'bottom', not:'A', near:'B', far:'O', ou k:0|1 (indice stable du moteur,
+//    celui des ids 'x:<obj1>:<obj2>:<k>' ; sert aux références tirées du solveur).
 function givenGeom(level, G, id) {
   const go = level.given.find((x) => x.id === id);
   return go ? geomOf(go.t, G[go.a], G[go.b]) : null;
@@ -232,6 +233,7 @@ function resolveRef(level, G, stepG, r) {
   const gi = (i) => (typeof i === 'number' ? stepG[i] : givenGeom(level, G, i));
   const g1 = gi(r.x[0]), g2 = gi(r.x[1]);
   if (!g1 || !g2) return null;
+  if (r.k !== undefined) { const it = intersect(g1, g2).find((x) => x.k === r.k); return it ? it.p : null; }
   const xs = intersect(g1, g2).map((x) => x.p);
   if (!xs.length) return null;
   const by = (f) => xs.reduce((a, b) => (f(b) < f(a) ? b : a));

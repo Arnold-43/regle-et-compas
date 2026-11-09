@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { LEVELS } from '../src/levels.js';
-import { CHAPITRES, ORDRE, chapitreDe, niveauOuvert, premierAJouer, position, estDefi } from '../src/chapters.js';
+import { CHAPITRES, ORDRE, chapitreDe, niveauOuvert, premierAJouer, position, estDefi, niveauxDe } from '../src/chapters.js';
 
 const prog = (...ids) => ({ done: Object.fromEntries(ids.map((id) => [id, { solved: true }])) });
 const BASES = ['I.1', 'I.10', 'I.11', 'I.12', 'I.9', 'I.31'];
@@ -48,7 +48,10 @@ test('progression enregistrée en 0.1.x, chapitre 1 fini : rien n’est perdu et
 test('le défi s’ouvre avec les niveaux requis, et n’est jamais requis', () => {
   const p = prog(...BASES, 'angle-60', 'angle-30', 'angle-45');
   assert.ok(niveauOuvert(p, 'angle-15'));
-  assert.equal(premierAJouer(p), 'I.1'); // tout le requis est réussi : on ne pousse pas vers le défi
+  assert.notEqual(premierAJouer(p), 'angle-15'); // on ne pousse jamais vers un défi
+  const toutRequis = prog(...ORDRE.filter((id) => !estDefi(id)));
+  for (const id of ORDRE) assert.ok(niveauOuvert(toutRequis, id), id); // défis compris, sans les avoir faits
+  assert.equal(premierAJouer(toutRequis), ORDRE[0]);
   // un chapitre suivant ne dépendrait que des niveaux requis
   const ch2 = CHAPITRES.find((c) => c.id === 'angles');
   assert.ok(!ch2.niveaux.includes(ch2.defi));
@@ -58,4 +61,36 @@ test('position dans le chapitre : le défi compte dans le total', () => {
   assert.deepEqual((({ rang, total }) => ({ rang, total }))(position('angle-45')), { rang: 3, total: 4 });
   assert.deepEqual((({ rang, total }) => ({ rang, total }))(position('angle-15')), { rang: 4, total: 4 });
   assert.equal(position('I.10').chapitre.numero, 1);
+});
+
+test('chaque entrée du catalogue a une présentation (titre, consigne, célébration)', async () => {
+  const { CATALOGUE } = await import('../src/catalog.js');
+  const { presentation } = await import('../src/presentation.js');
+  for (const e of CATALOGUE) assert.doesNotThrow(() => presentation(e.id), e.id);
+});
+
+test('au plus 2 niveaux avec la même cible du catalogue par chapitre', () => {
+  for (const ch of CHAPITRES) {
+    const n = {};
+    for (const id of niveauxDe(ch)) {
+      const l = LEVELS.find((x) => x.id === id);
+      if (l.objectif) n[l.objectif.id] = (n[l.objectif.id] || 0) + 1;
+    }
+    for (const [k, v] of Object.entries(n)) assert.ok(v <= 2, `${ch.titre} : ${v} niveaux « ${k} »`);
+  }
+});
+
+test('les niveaux des fiches ont un titre, une consigne et une célébration pour chaque variante', () => {
+  for (const l of LEVELS.filter((x) => x.chapitre && !['bases', 'angles'].includes(x.chapitre))) {
+    assert.ok(l.title && l.goal, l.id);
+    l.target(l.pts).forEach((_, i) => assert.ok(l.celebrate(l.pts, i).length, `${l.id} variante ${i}`));
+    assert.ok(l.ghost(l.pts).length, l.id);
+  }
+});
+
+test('dents de scie : facile → dur, une respiration aux deux tiers', async () => {
+  const { dentsDeScie } = await import('../src/chapters.js');
+  const sc = { a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 };
+  assert.deepEqual(dentsDeScie(Object.keys(sc), (k) => sc[k]), ['a', 'c', 'd', 'b', 'e', 'f']);
+  assert.deepEqual(dentsDeScie(['c', 'a', 'b'], (k) => sc[k]), ['a', 'b', 'c']);
 });

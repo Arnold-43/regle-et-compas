@@ -1,0 +1,31 @@
+name: Vérification exhaustive des niveaux
+
+# Recalcule le minimum de chaque niveau, ses solutions minimales et le cadre jouable (lent).
+# Le job rapide (deploy.yml, `npm test`) ne vérifie que les certificats.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/levels.js'
+      - 'src/fiches.js'
+      - 'src/catalog.js'
+      - 'src/engine.js'
+      - 'src/certificats.js'
+      - 'src/chapters.js'
+      - 'tools/**'
+      - 'tests/complet/**'
+
+permissions:
+  contents: read
+
+jobs:
+  complet:
+    name: Minimums et cadres
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run test:complet

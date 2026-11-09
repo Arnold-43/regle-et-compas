@@ -226,6 +226,48 @@ export const CATALOGUE = [
     cible: (G, b) => [partage(G[b.s[0]], G[b.s[1]], 3).map(pt)],
     libelle: (b) => `partage de ${nomS(b.s)} en 3`,
   },
+  {
+    id: 'triangle-inscrit',
+    nom: 'Triangle équilatéral inscrit',
+    args: { c: 'cercle' },
+    cible: (G, b) => [[120, 240].map((a) => pt(rot(G[b.c.R], G[b.c.O], a)))],
+    libelle: (b) => `triangle équilatéral inscrit, sommet ${b.c.R} (sommets)`,
+  },
+  {
+    id: 'carre-inscrit',
+    nom: 'Carré inscrit',
+    args: { c: 'cercle' },
+    cible: (G, b) => [[90, 180, 270].map((a) => pt(rot(G[b.c.R], G[b.c.O], a)))],
+    libelle: (b) => `carré inscrit, sommet ${b.c.R} (sommets)`,
+  },
+  {
+    id: 'tangente-en-un-point',
+    nom: 'Tangente en un point du cercle',
+    args: { c: 'cercle' },
+    cible: (G, b) => [[perpendiculaire(G[b.c.R], G[b.c.O], G[b.c.R])]],
+    libelle: (b) => `tangente au cercle en ${b.c.R}`,
+  },
+  {
+    id: 'partage-en-4',
+    nom: 'Partage en quatre',
+    args: { s: 'paire' },
+    cible: (G, b) => [partage(G[b.s[0]], G[b.s[1]], 4).map(pt)],
+    libelle: (b) => `partage de ${nomS(b.s)} en 4`,
+  },
+  {
+    id: 'report',
+    nom: 'Report de longueur',
+    args: { s: 'paire' },
+    cible: (G, b) => [[pt(add(G[b.s[1]], sub(G[b.s[1]], G[b.s[0]])))]],
+    libelle: (b) => `point C sur (${b.s[0]}${b.s[1]}) au-delà de ${b.s[1]}, avec ${b.s[1]}C = ${b.s[0]}${b.s[1]}`,
+  },
+  {
+    id: 'parallelogramme',
+    nom: 'Parallélogramme',
+    args: { t: 'triangle' },
+    cible: (G, b) => { const [A, B, C] = b.t.map((k) => G[k]); return [[pt(add(A, sub(C, B)))]]; },
+    libelle: (b) => `quatrième sommet D du parallélogramme ${b.t.join('')}D`,
+  },
 ];
 
 export const ENTREE = Object.fromEntries(CATALOGUE.map((e) => [e.id, e]));

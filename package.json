@@ -1,6 +1,6 @@
 {
   "name": "regle-et-compas",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Jeu d'énigmes de constructions géométriques à la règle et au compas, d'après Euclide.",
   "private": true,
   "type": "module",
@@ -9,7 +9,9 @@
     "build": "node scripts/build.js",
     "dev": "python3 -m http.server 8000 --directory src",
     "metrics": "node tools/metrics.js",
-    "generate": "node tools/generate.js"
+    "generate": "node tools/generate.js",
+    "certify": "node tools/certify.js",
+    "test:complet": "node --test tests/complet/*.test.js"
   },
   "engines": {
     "node": ">=20"

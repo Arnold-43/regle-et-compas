@@ -4,7 +4,7 @@
  */
 import * as RC from './engine.js';
 import { LEVELS } from './levels.js';
-import { CHAPITRES, ORDRE, niveauxDe, niveauOuvert, chapitreOuvert, premierAJouer, position } from './chapters.js';
+import { CHAPITRES, ORDRE, niveauxDe, niveauOuvert, chapitreOuvert, premierAJouer, position, chapitreDe } from './chapters.js';
 
 // Niveaux dans l'ordre des chapitres (écran des niveaux, « Niveau suivant »).
 const NIVEAUX = ORDRE.map((id) => LEVELS.find((l) => l.id === id));
@@ -46,7 +46,10 @@ const lv = () => NIVEAUX[S.li];
 const maxMoves = () => lv().par + lv().extra;
 const outOfMoves = () => S.specs.length >= maxMoves();
 const done = (i) => prog.done[NIVEAUX[i].id] || {};
-const unlocked = (i) => niveauOuvert(prog, NIVEAUX[i].id);
+// Mode test : 5 tapes sur le numéro de version (écran des chapitres) ouvrent tous les niveaux, 5 de plus
+// referment. Rien n'est enregistré pendant le mode test : la progression reste celle d'avant.
+let modeTest = false;
+const unlocked = (i) => modeTest || niveauOuvert(prog, NIVEAUX[i].id);
 const firstOpen = () => Math.max(0, ORDRE.indexOf(premierAJouer(prog)));
 /** Ligne d'en-tête : la proposition d'Euclide, sinon la place dans le chapitre. */
 function eyebrowOf(L, suffixe) {
@@ -59,6 +62,13 @@ function badgeOf(L) {
   if (L.prop) return L.id;
   const p = position(L.id);
   return `${p.chapitre.numero}.${p.rang}`;
+}
+/** Message quand la médiatrice manque à un niveau où le joueur l'a déjà gagnée ('' sinon). */
+function sansMed(L) {
+  const ch = chapitreDe(L.id);
+  if (ch && ch.sansMediatrice) return 'Pas d’outil Médiatrice dans ce chapitre.';
+  if (ch && ch.numero > 1) return 'Pas d’outil Médiatrice dans ce niveau.';
+  return '';
 }
 const hasNext = () => S.li < NIVEAUX.length - 1 && unlocked(S.li + 1);
 
@@ -209,7 +219,10 @@ function scene(c, v, now) {
     c.save();
     c.setLineDash([5, 6]); c.strokeStyle = col.blue; c.globalAlpha = 0.4; c.lineWidth = 1.5;
     for (const gh of L.ghost(G)) {
-      if (gh.seg) {
+      if (gh.dot) {
+        const q = T(v, gh.dot);
+        c.beginPath(); c.arc(q[0], q[1], 7, 0, Math.PI * 2); c.stroke();
+      } else if (gh.seg) {
         const a = T(v, gh.seg[0]), b = T(v, gh.seg[1]);
         c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.stroke();
       } else { pathGeom(c, v, gh.line, 1); c.stroke(); }
@@ -461,12 +474,12 @@ function win(alt) {
   S.solved = true; S.winAlt = alt; S.winAt = performance.now() + (DUR ? DUR * 0.6 : 0);
   S.tool = null; S.sel = []; S.hover = null; S.hint = null; hideHint();
   const star = n <= L.par && !S.hintUsed;
-  const d = prog.done[L.id] || {};
+  const d = { ...(prog.done[L.id] || {}) };
   const first = !d.solved;
   d.solved = true;
   if (star) d.star = true;
   d.best = Math.min(d.best || Infinity, n);
-  prog.done[L.id] = d; save();
+  if (!modeTest) { prog.done[L.id] = d; save(); }
 
   $('sheetEyebrow').textContent = L.prop ? `Euclide ${L.id} · résolu` : eyebrowOf(L, 'résolu');
   $('sheetMoves').textContent = n;
@@ -552,6 +565,11 @@ function updateUI() {
     const t = b.dataset.tool, avail = L.tools.includes(t);
     b.dataset.locked = avail ? '' : '1';
     b.setAttribute('aria-disabled', avail ? 'false' : 'true');
+    if (t === 'med') {
+      const sans = avail ? '' : sansMed(L);
+      b.title = sans;
+      b.setAttribute('aria-label', sans ? `Médiatrice : ${sans}` : 'Médiatrice');
+    }
     b.setAttribute('aria-pressed', S.tool === t ? 'true' : 'false');
     b.classList.toggle('cue', !!(S.hint && S.hint.show && S.hint.lvl >= 2 && S.hint.step.t === t));
     b.classList.toggle('off', avail && (S.solved || outOfMoves()));
@@ -628,7 +646,10 @@ function closeLevels() { $('levels').hidden = true; }
 
 document.querySelectorAll('.tool').forEach((b) => b.addEventListener('click', () => {
   const t = b.dataset.tool, L = lv();
-  if (!L.tools.includes(t)) { toast('La Médiatrice se gagne en réussissant la proposition I.10.'); return; }
+  if (!L.tools.includes(t)) {
+    toast(sansMed(L) || 'La Médiatrice se gagne en réussissant la proposition I.10.');
+    return;
+  }
   if (S.solved || outOfMoves()) return;
   S.tool = S.tool === t ? null : t;
   S.sel = [];
@@ -647,6 +668,15 @@ $('nextBtn').addEventListener('click', () => {
   else openLevels();
 });
 $('replayBtn').addEventListener('click', () => loadLevel(S.li));
+let tapes = 0, tapeT = 0;
+$('version').addEventListener('click', () => {
+  const now = Date.now();
+  tapes = now - tapeT < 1500 ? tapes + 1 : 1; tapeT = now;
+  if (tapes < 5) return;
+  tapes = 0; modeTest = !modeTest;
+  toast(modeTest ? 'Mode test : tous les niveaux sont ouverts. Ta progression ne change pas.' : 'Mode test terminé.', 3200);
+  renderLevels();
+});
 $('wipeBtn').addEventListener('click', () => {
   const btn = $('wipeBtn');
   if (btn.dataset.armed !== '1') { btn.dataset.armed = '1'; btn.textContent = 'Toucher encore pour confirmer'; return; }

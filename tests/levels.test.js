@@ -3,7 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { build, verify, hint, solvedIn, refToSpecs, geomOf, isDuplicate } from '../src/engine.js';
 import { LEVELS } from '../src/levels.js';
-import { minMoves } from '../tools/solver.js';
+import { CERTIFICATS } from '../src/certificats.js';
+import { empreinte } from '../tools/certify.js';
 
 const isSolved = (level, specs) => {
   const b = build(level, level.pts, specs);
@@ -34,11 +35,15 @@ for (const level of LEVELS) {
       });
     });
 
-    await t.test(`le minimum annoncé (${level.par}) est exact`, () => {
-      const res = minMoves(level, level.par);
-      assert.ok(res, `aucune solution en ${level.par} coups`);
-      assert.equal(res.depth, level.par);
-      if (level.par > 1) assert.equal(minMoves(level, level.par - 1), null, 'il existe une solution plus courte');
+    await t.test(`certificat à jour (minimum ${level.par})`, () => {
+      // Le minimum exact est recalculé par `npm run certify` et revérifié en entier par `npm run test:complet`.
+      const c = CERTIFICATS[level.id];
+      assert.ok(c, 'pas de certificat : lancer `npm run certify`');
+      assert.ok(!c.rejet, `niveau rejeté : ${c.rejet}`);
+      assert.equal(c.empreinte, empreinte(level), 'définition modifiée depuis la certification : lancer `npm run certify`');
+      assert.equal(c.par, level.par);
+      assert.equal(c.minCadre, c.par, 'étoile hors du cadre jouable');
+      assert.ok(level.par >= 2 || level.id.startsWith('I.'), 'niveau en un seul coup');
     });
 
     await t.test('les indices mènent à la solution, au minimum', () => {
