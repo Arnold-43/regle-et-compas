@@ -71,11 +71,11 @@ export const CERTIFICATS = {
   "score": 2.92
  },
  "cercle-carre": {
-  "empreinte": "2261279ac6f1e010",
+  "empreinte": "ae160d2a4c07493e",
   "par": 3,
   "minCadre": 3,
   "nbSolutions": 8,
-  "score": 6.96,
+  "score": 6.41,
   "refs": [
    [
     {
@@ -149,30 +149,27 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -124,
-   -106,
-   136,
-   114
+   -85,
+   -139,
+   91,
+   159
   ],
   "lab": {
    "O": [
-    -0.71,
-    0.71
+    -0.92,
+    -0.38
    ],
    "R": [
-    1,
-    0
-   ],
-   "P": [
-    0,
-    -1
+    0.71,
+    0.71
    ]
   },
   "ghostAlt": 0,
   "mesures": {
-   "premier": 0.09,
-   "goulotLibre": 0.09,
-   "auxMin": 2
+   "premier": 0.33,
+   "goulotLibre": 0.13,
+   "auxMin": 2,
+   "occupation": 0.57
   }
  },
  "cercle-carre-inscrit": {
@@ -202,10 +199,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -72,
-   -87,
-   92,
-   77
+   -66,
+   -130,
+   86,
+   130
   ],
   "lab": {
    "O": [
@@ -221,7 +218,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.33,
    "goulotLibre": 1,
-   "auxMin": 0
+   "auxMin": 0,
+   "occupation": 0.65
   }
  },
  "cercle-centre": {
@@ -262,10 +260,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -74,
-   -72,
-   86,
-   88
+   -69,
+   -114,
+   81,
+   140
   ],
   "lab": {
    "R": [
@@ -281,7 +279,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.5,
    "goulotLibre": 0.1,
-   "auxMin": 2
+   "auxMin": 2,
+   "occupation": 0.65
   }
  },
  "cercle-centre-b": {
@@ -344,10 +343,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -95,
-   -98,
-   135,
-   86
+   -83,
+   -135,
+   75,
+   133
   ],
   "lab": {
    "R": [
@@ -363,100 +362,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.67,
    "goulotLibre": 0.04,
-   "auxMin": 3
-  }
- },
- "cercle-equilateral": {
-  "empreinte": "d57d28e018237d74",
-  "par": 3,
-  "minCadre": 3,
-  "nbSolutions": 4,
-  "score": 4.46,
-  "refs": [
-   [
-    {
-     "t": "med",
-     "a": "O",
-     "b": "R"
-    },
-    {
-     "t": "line",
-     "a": "O",
-     "b": {
-      "x": [
-       "c",
-       0
-      ],
-      "k": 0
-     }
-    },
-    {
-     "t": "line",
-     "a": "R",
-     "b": {
-      "x": [
-       "c",
-       0
-      ],
-      "k": 0
-     }
-    }
-   ],
-   [
-    {
-     "t": "med",
-     "a": "O",
-     "b": "R"
-    },
-    {
-     "t": "line",
-     "a": "O",
-     "b": {
-      "x": [
-       "c",
-       0
-      ],
-      "k": 1
-     }
-    },
-    {
-     "t": "line",
-     "a": "R",
-     "b": {
-      "x": [
-       "c",
-       0
-      ],
-      "k": 1
-     }
-    }
-   ]
-  ],
-  "view": [
-   -124,
-   -84,
-   136,
-   124
-  ],
-  "lab": {
-   "O": [
-    -0.71,
-    0.71
-   ],
-   "R": [
-    0.71,
-    -0.71
-   ],
-   "P": [
-    0,
-    -1
-   ]
-  },
-  "ghostAlt": 0,
-  "mesures": {
-   "premier": 0.18,
-   "goulotLibre": 0.18,
-   "auxMin": 0
+   "auxMin": 3,
+   "occupation": 0.65
   }
  },
  "cercle-equilateral-b": {
@@ -526,10 +433,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -96,
-   -76,
-   80,
-   100
+   -91,
+   -123,
+   75,
+   157
   ],
   "lab": {
    "O": [
@@ -545,11 +452,12 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.5,
    "goulotLibre": 0.5,
-   "auxMin": 0
+   "auxMin": 0,
+   "occupation": 0.66
   }
  },
  "cercle-hexagone": {
-  "empreinte": "772fbf10a9489b2c",
+  "empreinte": "ce8e599227b2f496",
   "par": 3,
   "minCadre": 3,
   "nbSolutions": 12,
@@ -580,30 +488,27 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -124,
-   -84,
-   136,
-   124
+   -83,
+   -129,
+   71,
+   131
   ],
   "lab": {
    "O": [
-    0.71,
-    0.71
+    0.38,
+    -0.92
    ],
    "R": [
-    0,
-    -1
-   ],
-   "P": [
-    0,
-    -1
+    0.92,
+    -0.38
    ]
   },
   "ghostAlt": 0,
   "mesures": {
-   "premier": 0.27,
+   "premier": 1,
    "goulotLibre": 0.24,
-   "auxMin": 0
+   "auxMin": 0,
+   "occupation": 0.65
   }
  },
  "cercle-hexagone-b": {
@@ -638,10 +543,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -72,
-   -87,
-   92,
-   77
+   -66,
+   -130,
+   86,
+   130
   ],
   "lab": {
    "O": [
@@ -657,66 +562,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 1,
    "goulotLibre": 0.2,
-   "auxMin": 0
-  }
- },
- "cercle-mediatrice": {
-  "empreinte": "3543402e24d957a6",
-  "par": 2,
-  "minCadre": 2,
-  "nbSolutions": 1,
-  "score": 5,
-  "refs": [
-   [
-    {
-     "t": "circle",
-     "a": "R",
-     "b": "O"
-    },
-    {
-     "t": "line",
-     "a": {
-      "x": [
-       "c",
-       0
-      ],
-      "k": 0
-     },
-     "b": {
-      "x": [
-       "c",
-       0
-      ],
-      "k": 1
-     }
-    }
-   ]
-  ],
-  "view": [
-   -124,
-   -84,
-   136,
-   124
-  ],
-  "lab": {
-   "O": [
-    -0.71,
-    0.71
-   ],
-   "R": [
-    0.71,
-    -0.71
-   ],
-   "P": [
-    0,
-    -1
-   ]
-  },
-  "ghostAlt": 0,
-  "mesures": {
-   "premier": 0.13,
-   "goulotLibre": 0.13,
-   "auxMin": 0
+   "auxMin": 0,
+   "occupation": 0.65
   }
  },
  "cercle-mediatrice-b": {
@@ -752,10 +599,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -72,
-   -87,
-   92,
-   77
+   -66,
+   -130,
+   86,
+   130
   ],
   "lab": {
    "O": [
@@ -771,7 +618,73 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.5,
    "goulotLibre": 0.5,
-   "auxMin": 0
+   "auxMin": 0,
+   "occupation": 0.65
+  }
+ },
+ "cercle-milieu-arc": {
+  "empreinte": "f8db97a3c7de4529",
+  "par": 3,
+  "minCadre": 3,
+  "nbSolutions": 1,
+  "score": 8.67,
+  "refs": [
+   [
+    {
+     "t": "line",
+     "a": "O",
+     "b": "R"
+    },
+    {
+     "t": "circle",
+     "a": {
+      "x": [
+       "c",
+       0
+      ],
+      "k": 0
+     },
+     "b": "S"
+    },
+    {
+     "t": "med",
+     "a": "S",
+     "b": {
+      "x": [
+       0,
+       1
+      ],
+      "k": 1
+     }
+    }
+   ]
+  ],
+  "view": [
+   -71,
+   -115,
+   79,
+   137
+  ],
+  "lab": {
+   "O": [
+    -0.38,
+    0.92
+   ],
+   "R": [
+    0.92,
+    -0.38
+   ],
+   "S": [
+    0.38,
+    -0.92
+   ]
+  },
+  "ghostAlt": 0,
+  "mesures": {
+   "premier": 0.1,
+   "goulotLibre": 0.06,
+   "auxMin": 2,
+   "occupation": 0.64
   }
  },
  "cercle-triangle-inscrit": {
@@ -801,10 +714,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -96,
-   -76,
-   80,
-   100
+   -91,
+   -123,
+   75,
+   157
   ],
   "lab": {
    "O": [
@@ -820,15 +733,16 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.33,
    "goulotLibre": 0.33,
-   "auxMin": 1
+   "auxMin": 1,
+   "occupation": 0.66
   }
  },
  "cercle-triangle-inscrit-b": {
-  "empreinte": "99e34b9b50379303",
+  "empreinte": "7691a8c93dddc8d3",
   "par": 2,
   "minCadre": 2,
   "nbSolutions": 1,
-  "score": 5.75,
+  "score": 3.75,
   "refs": [
    [
     {
@@ -850,30 +764,27 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -126,
-   -97,
-   111,
-   100
+   -83,
+   -129,
+   71,
+   131
   ],
   "lab": {
    "O": [
-    0,
-    -1
+    0.92,
+    -0.38
    ],
    "R": [
-    0,
-    -1
-   ],
-   "P": [
-    0,
-    -1
+    0.92,
+    -0.38
    ]
   },
   "ghostAlt": 0,
   "mesures": {
-   "premier": 0.13,
-   "goulotLibre": 0.13,
-   "auxMin": 1
+   "premier": 0.5,
+   "goulotLibre": 0.5,
+   "auxMin": 1,
+   "occupation": 0.65
   }
  },
  "cp-carre": {
@@ -965,10 +876,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -105,
-   -117,
-   184,
-   181
+   -97,
+   -124,
+   93,
+   198
   ],
   "lab": {
    "A": [
@@ -984,36 +895,48 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.5,
    "goulotLibre": 0.13,
-   "auxMin": 2
+   "auxMin": 2,
+   "occupation": 0.5
   }
  },
- "cp-carre-b": {
-  "empreinte": "528f18ac79d8ea8e",
-  "par": 4,
-  "minCadre": 4,
-  "nbSolutions": 8,
-  "score": 7.99,
+ "cp-carre-rc": {
+  "empreinte": "cd807345697507d7",
+  "par": 5,
+  "minCadre": 5,
+  "nbSolutions": 22,
+  "score": 9.5,
   "refs": [
    [
     {
      "t": "circle",
-     "a": "R",
-     "b": "S"
+     "a": "A",
+     "b": "B"
     },
     {
      "t": "circle",
-     "a": "S",
-     "b": "R"
+     "a": "B",
+     "b": "A"
     },
     {
-     "t": "med",
-     "a": "R",
-     "b": {
+     "t": "circle",
+     "a": {
       "x": [
        0,
        1
       ],
       "k": 0
+     },
+     "b": "A"
+    },
+    {
+     "t": "line",
+     "a": "A",
+     "b": {
+      "x": [
+       1,
+       2
+      ],
+      "k": 1
      }
     },
     {
@@ -1027,8 +950,8 @@ export const CERTIFICATS = {
      },
      "b": {
       "x": [
-       1,
-       2
+       0,
+       3
       ],
       "k": 1
      }
@@ -1037,23 +960,34 @@ export const CERTIFICATS = {
    [
     {
      "t": "circle",
-     "a": "R",
-     "b": "S"
+     "a": "A",
+     "b": "B"
     },
     {
      "t": "circle",
-     "a": "S",
-     "b": "R"
+     "a": "B",
+     "b": "A"
     },
     {
-     "t": "med",
-     "a": "R",
-     "b": {
+     "t": "circle",
+     "a": {
       "x": [
        0,
        1
       ],
       "k": 0
+     },
+     "b": "A"
+    },
+    {
+     "t": "line",
+     "a": "A",
+     "b": {
+      "x": [
+       1,
+       2
+      ],
+      "k": 1
      }
     },
     {
@@ -1067,8 +1001,8 @@ export const CERTIFICATS = {
      },
      "b": {
       "x": [
-       1,
-       2
+       0,
+       3
       ],
       "k": 0
      }
@@ -1076,26 +1010,86 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -157,
-   -180,
-   142,
-   143
+   -107,
+   -204,
+   117,
+   176
   ],
   "lab": {
-   "R": [
-    -0.71,
+   "A": [
+    0.71,
     0.71
    ],
-   "S": [
-    0.92,
-    -0.38
+   "B": [
+    0.71,
+    -0.71
    ]
   },
   "ghostAlt": 0,
   "mesures": {
-   "premier": 0.5,
-   "goulotLibre": 0.09,
-   "auxMin": 2
+   "premier": 0.67,
+   "goulotLibre": 0.11,
+   "auxMin": 3,
+   "occupation": 0.43
+  }
+ },
+ "cp-losange": {
+  "empreinte": "851a5f416e1ee0a5",
+  "par": 3,
+  "minCadre": 3,
+  "nbSolutions": 9,
+  "score": 2.91,
+  "refs": [
+   [
+    {
+     "t": "circle",
+     "a": "O",
+     "b": "A"
+    },
+    {
+     "t": "circle",
+     "a": "A",
+     "b": "O"
+    },
+    {
+     "t": "med",
+     "a": "A",
+     "b": {
+      "x": [
+       "lb",
+       0
+      ],
+      "k": 1
+     }
+    }
+   ]
+  ],
+  "view": [
+   -104,
+   -225,
+   146,
+   198
+  ],
+  "lab": {
+   "O": [
+    0.92,
+    0.38
+   ],
+   "A": [
+    0.38,
+    -0.92
+   ],
+   "B": [
+    0.92,
+    0.38
+   ]
+  },
+  "ghostAlt": 0,
+  "mesures": {
+   "premier": 0.2,
+   "goulotLibre": 0.53,
+   "auxMin": 0,
+   "occupation": 0.46
   }
  },
  "cp-parallelogramme": {
@@ -1136,10 +1130,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -180,
-   -125,
-   115,
-   110
+   -172,
+   -238,
+   107,
+   233
   ],
   "lab": {
    "A": [
@@ -1159,71 +1153,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.08,
    "goulotLibre": 0.06,
-   "auxMin": 1
-  }
- },
- "cp-parallelogramme-b": {
-  "empreinte": "d6de2bff0e4e4e3f",
-  "par": 3,
-  "minCadre": 3,
-  "nbSolutions": 1,
-  "score": 7.75,
-  "refs": [
-   [
-    {
-     "t": "med",
-     "a": "A",
-     "b": "C"
-    },
-    {
-     "t": "line",
-     "a": "B",
-     "b": {
-      "x": [
-       "b",
-       0
-      ],
-      "k": 0
-     }
-    },
-    {
-     "t": "circle",
-     "a": {
-      "x": [
-       "b",
-       0
-      ],
-      "k": 0
-     },
-     "b": "B"
-    }
-   ]
-  ],
-  "view": [
-   -135,
-   -107,
-   95,
-   83
-  ],
-  "lab": {
-   "A": [
-    -0.92,
-    0.38
-   ],
-   "B": [
-    1,
-    0
-   ],
-   "C": [
-    0.38,
-    -0.92
-   ]
-  },
-  "ghostAlt": 0,
-  "mesures": {
-   "premier": 0.08,
-   "goulotLibre": 0.06,
-   "auxMin": 1
+   "auxMin": 1,
+   "occupation": 0.45
   }
  },
  "cp-partage-3": {
@@ -1280,10 +1211,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -81,
-   -84,
-   77,
-   65
+   -76,
+   -88,
+   72,
+   162
   ],
   "lab": {
    "A": [
@@ -1299,7 +1230,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.75,
    "goulotLibre": 0.17,
-   "auxMin": 2
+   "auxMin": 2,
+   "occupation": 0.65
   }
  },
  "cp-partage-3-b": {
@@ -1307,7 +1239,7 @@ export const CERTIFICATS = {
   "par": 5,
   "minCadre": 5,
   "nbSolutions": 27,
-  "score": 9.89,
+  "score": 10.91,
   "refs": [
    [
     {
@@ -1362,10 +1294,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -235,
-   -228,
-   235,
-   148
+   -96,
+   -151,
+   76,
+   141
   ],
   "lab": {
    "O": [
@@ -1384,8 +1316,9 @@ export const CERTIFICATS = {
   "ghostAlt": 0,
   "mesures": {
    "premier": 0.43,
-   "goulotLibre": 0.05,
-   "auxMin": 2
+   "goulotLibre": 0.02,
+   "auxMin": 2,
+   "occupation": 0.66
   }
  },
  "cp-partage-4": {
@@ -1426,10 +1359,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -75,
-   -83,
-   85,
-   45
+   -70,
+   -141,
+   80,
+   113
   ],
   "lab": {
    "A": [
@@ -1445,7 +1378,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.25,
    "goulotLibre": 0.5,
-   "auxMin": 0
+   "auxMin": 0,
+   "occupation": 0.65
   }
  },
  "cp-perpendiculaire": {
@@ -1480,10 +1414,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -196,
-   -87,
-   92,
-   143
+   -76,
+   -88,
+   72,
+   162
   ],
   "lab": {
    "A": [
@@ -1499,104 +1433,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.5,
    "goulotLibre": 0.33,
-   "auxMin": 1
-  }
- },
- "cp-perpendiculaire-b": {
-  "empreinte": "95bd9b0676fe8310",
-  "par": 3,
-  "minCadre": 3,
-  "nbSolutions": 1,
-  "score": 5.33,
-  "refs": [
-   [
-    {
-     "t": "line",
-     "a": "A",
-     "b": "B"
-    },
-    {
-     "t": "circle",
-     "a": "B",
-     "b": "A"
-    },
-    {
-     "t": "med",
-     "a": "A",
-     "b": {
-      "x": [
-       0,
-       1
-      ],
-      "k": 1
-     }
-    }
-   ]
-  ],
-  "view": [
-   -91,
-   -147,
-   203,
-   87
-  ],
-  "lab": {
-   "A": [
-    0.38,
-    -0.92
-   ],
-   "B": [
-    0.38,
-    -0.92
-   ]
-  },
-  "ghostAlt": 0,
-  "mesures": {
-   "premier": 0.5,
-   "goulotLibre": 0.33,
-   "auxMin": 1
-  }
- },
- "cp-report": {
-  "empreinte": "be220c7572a4b167",
-  "par": 2,
-  "minCadre": 2,
-  "nbSolutions": 1,
-  "score": 3,
-  "refs": [
-   [
-    {
-     "t": "line",
-     "a": "A",
-     "b": "B"
-    },
-    {
-     "t": "circle",
-     "a": "B",
-     "b": "A"
-    }
-   ]
-  ],
-  "view": [
-   -96,
-   -79,
-   192,
-   151
-  ],
-  "lab": {
-   "A": [
-    0.71,
-    -0.71
-   ],
-   "B": [
-    0,
-    -1
-   ]
-  },
-  "ghostAlt": 0,
-  "mesures": {
-   "premier": 0.5,
-   "goulotLibre": 0.5,
-   "auxMin": 0
+   "auxMin": 1,
+   "occupation": 0.65
   }
  },
  "cp-report-b": {
@@ -1620,10 +1458,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -91,
-   -147,
-   203,
-   87
+   -82,
+   -260,
+   194,
+   210
   ],
   "lab": {
    "A": [
@@ -1639,7 +1477,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.67,
    "goulotLibre": 0.67,
-   "auxMin": 0
+   "auxMin": 0,
+   "occupation": 0.35
   }
  },
  "ct-bissectrice": {
@@ -1669,10 +1508,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -119,
-   -81,
-   109,
-   101
+   -112,
+   -167,
+   102,
+   197
   ],
   "lab": {
    "A": [
@@ -1692,7 +1531,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.08,
    "goulotLibre": 0.08,
-   "auxMin": 1
+   "auxMin": 1,
+   "occupation": 0.68
   }
  },
  "ct-centre-circonscrit": {
@@ -1716,10 +1556,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -93,
    -88,
-   104,
-   74
+   -159,
+   98,
+   154
   ],
   "lab": {
    "A": [
@@ -1739,15 +1579,16 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.25,
    "goulotLibre": 0.25,
-   "auxMin": 0
+   "auxMin": 0,
+   "occupation": 0.67
   }
  },
- "ct-centre-circonscrit-b": {
-  "empreinte": "63513a85d0c381fb",
-  "par": 2,
-  "minCadre": 2,
+ "ct-centre-gravite": {
+  "empreinte": "790e7955afc323b3",
+  "par": 4,
+  "minCadre": 4,
   "nbSolutions": 3,
-  "score": 3.21,
+  "score": 9.23,
   "refs": [
    [
     {
@@ -1759,14 +1600,36 @@ export const CERTIFICATS = {
      "t": "med",
      "a": "A",
      "b": "C"
+    },
+    {
+     "t": "line",
+     "a": "B",
+     "b": {
+      "x": [
+       "b",
+       1
+      ],
+      "k": 0
+     }
+    },
+    {
+     "t": "line",
+     "a": "C",
+     "b": {
+      "x": [
+       "c",
+       0
+      ],
+      "k": 0
+     }
     }
    ]
   ],
   "view": [
-   -119,
-   -68,
-   109,
-   115
+   -100,
+   -155,
+   86,
+   159
   ],
   "lab": {
    "A": [
@@ -1774,19 +1637,20 @@ export const CERTIFICATS = {
     0.38
    ],
    "B": [
-    0.92,
-    0.38
+    -0.38,
+    0.92
    ],
    "C": [
-    0,
-    -1
+    -0.71,
+    -0.71
    ]
   },
   "ghostAlt": 0,
   "mesures": {
    "premier": 0.25,
-   "goulotLibre": 0.25,
-   "auxMin": 0
+   "goulotLibre": 0.04,
+   "auxMin": 2,
+   "occupation": 0.67
   }
  },
  "ct-centre-inscrit": {
@@ -1832,10 +1696,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -94,
-   -89,
-   104,
-   115
+   -88,
+   -159,
+   98,
+   154
   ],
   "lab": {
    "A": [
@@ -1855,7 +1719,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.5,
    "goulotLibre": 0.04,
-   "auxMin": 2
+   "auxMin": 2,
+   "occupation": 0.67
   }
  },
  "ct-cercle-circonscrit": {
@@ -1890,10 +1755,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -105,
-   -85,
-   92,
-   80
+   -103,
+   -155,
+   97,
+   185
   ],
   "lab": {
    "A": [
@@ -1913,26 +1778,27 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.25,
    "goulotLibre": 0.06,
-   "auxMin": 1
+   "auxMin": 1,
+   "occupation": 0.62
   }
  },
- "ct-cercle-circonscrit-b": {
-  "empreinte": "4fcbc172404feefe",
-  "par": 3,
-  "minCadre": 3,
+ "ct-deux-tangentes": {
+  "empreinte": "591b9c7152a57191",
+  "par": 5,
+  "minCadre": 5,
   "nbSolutions": 3,
-  "score": 6.96,
+  "score": 10.53,
   "refs": [
    [
     {
-     "t": "med",
-     "a": "A",
-     "b": "B"
+     "t": "line",
+     "a": "O",
+     "b": "P"
     },
     {
      "t": "med",
-     "a": "A",
-     "b": "C"
+     "a": "O",
+     "b": "P"
     },
     {
      "t": "circle",
@@ -1943,35 +1809,128 @@ export const CERTIFICATS = {
       ],
       "k": 0
      },
-     "b": "A"
+     "b": "O"
+    },
+    {
+     "t": "line",
+     "a": "P",
+     "b": {
+      "x": [
+       "c",
+       2
+      ],
+      "k": 0
+     }
+    },
+    {
+     "t": "line",
+     "a": "P",
+     "b": {
+      "x": [
+       "c",
+       2
+      ],
+      "k": 1
+     }
     }
    ]
   ],
   "view": [
-   -93,
-   -88,
+   -119,
+   -183,
    104,
-   74
+   196
   ],
   "lab": {
-   "A": [
-    -0.92,
-    0.38
+   "O": [
+    0.38,
+    -0.92
    ],
-   "B": [
-    1,
-    0
+   "R": [
+    -0.71,
+    -0.71
    ],
-   "C": [
+   "P": [
     0,
     -1
    ]
   },
   "ghostAlt": 0,
   "mesures": {
-   "premier": 0.25,
-   "goulotLibre": 0.06,
-   "auxMin": 1
+   "premier": 0.27,
+   "goulotLibre": 0.02,
+   "auxMin": 1,
+   "occupation": 0.69
+  }
+ },
+ "ct-orthocentre": {
+  "empreinte": "dc5347d24cfe9c0a",
+  "par": 4,
+  "minCadre": 4,
+  "nbSolutions": 2,
+  "score": 9.83,
+  "refs": [
+   [
+    {
+     "t": "circle",
+     "a": "B",
+     "b": "A"
+    },
+    {
+     "t": "circle",
+     "a": "C",
+     "b": "A"
+    },
+    {
+     "t": "med",
+     "a": "A",
+     "b": {
+      "x": [
+       "c",
+       1
+      ],
+      "k": 1
+     }
+    },
+    {
+     "t": "line",
+     "a": "A",
+     "b": {
+      "x": [
+       0,
+       1
+      ],
+      "k": 0
+     }
+    }
+   ]
+  ],
+  "view": [
+   -112,
+   -200,
+   102,
+   164
+  ],
+  "lab": {
+   "A": [
+    -1,
+    0
+   ],
+   "B": [
+    0.92,
+    0.38
+   ],
+   "C": [
+    -0.92,
+    -0.38
+   ]
+  },
+  "ghostAlt": 0,
+  "mesures": {
+   "premier": 0.17,
+   "goulotLibre": 0.04,
+   "auxMin": 2,
+   "occupation": 0.68
   }
  },
  "ct-tangente": {
@@ -2051,10 +2010,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -124,
-   -84,
-   136,
-   124
+   -117,
+   -182,
+   128,
+   232
   ],
   "lab": {
    "O": [
@@ -2074,110 +2033,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.27,
    "goulotLibre": 0.02,
-   "auxMin": 1
-  }
- },
- "ct-tangente-b": {
-  "empreinte": "9f13c5a9c3eff977",
-  "par": 4,
-  "minCadre": 4,
-  "nbSolutions": 6,
-  "score": 9.32,
-  "refs": [
-   [
-    {
-     "t": "line",
-     "a": "O",
-     "b": "P"
-    },
-    {
-     "t": "med",
-     "a": "O",
-     "b": "P"
-    },
-    {
-     "t": "circle",
-     "a": {
-      "x": [
-       0,
-       1
-      ],
-      "k": 0
-     },
-     "b": "O"
-    },
-    {
-     "t": "line",
-     "a": "P",
-     "b": {
-      "x": [
-       "c",
-       2
-      ],
-      "k": 0
-     }
-    }
-   ],
-   [
-    {
-     "t": "line",
-     "a": "O",
-     "b": "P"
-    },
-    {
-     "t": "med",
-     "a": "O",
-     "b": "P"
-    },
-    {
-     "t": "circle",
-     "a": {
-      "x": [
-       0,
-       1
-      ],
-      "k": 0
-     },
-     "b": "O"
-    },
-    {
-     "t": "line",
-     "a": "P",
-     "b": {
-      "x": [
-       "c",
-       2
-      ],
-      "k": 1
-     }
-    }
-   ]
-  ],
-  "view": [
-   -126,
-   -97,
-   111,
-   100
-  ],
-  "lab": {
-   "O": [
-    0.38,
-    -0.92
-   ],
-   "R": [
-    -0.71,
-    -0.71
-   ],
-   "P": [
-    0,
-    -1
-   ]
-  },
-  "ghostAlt": 0,
-  "mesures": {
-   "premier": 0.27,
-   "goulotLibre": 0.02,
-   "auxMin": 1
+   "auxMin": 1,
+   "occupation": 0.69
   }
  },
  "ct-tangente-en": {
@@ -2212,10 +2069,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -102,
-   -92,
-   120,
-   106
+   -91,
+   -123,
+   75,
+   157
   ],
   "lab": {
    "O": [
@@ -2231,37 +2088,44 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.67,
    "goulotLibre": 0.46,
-   "auxMin": 1
+   "auxMin": 1,
+   "occupation": 0.66
   }
  },
  "ct-tangente-en-b": {
-  "empreinte": "644028614cf6a91f",
+  "empreinte": "73cdf25367f7b0ab",
   "par": 4,
   "minCadre": 4,
-  "nbSolutions": 19,
-  "score": 8.08,
+  "nbSolutions": 10,
+  "score": 6.41,
   "refs": [
    [
     {
+     "t": "circle",
+     "a": "R",
+     "b": "O"
+    },
+    {
      "t": "line",
      "a": "O",
-     "b": "R"
-    },
-    {
-     "t": "circle",
-     "a": "P",
-     "b": "R"
-    },
-    {
-     "t": "line",
-     "a": "P",
      "b": {
       "x": [
-       0,
-       1
+       "c",
+       0
       ],
       "k": 0
      }
+    },
+    {
+     "t": "circle",
+     "a": {
+      "x": [
+       "c",
+       0
+      ],
+      "k": 0
+     },
+     "b": "O"
     },
     {
      "t": "line",
@@ -2271,36 +2135,33 @@ export const CERTIFICATS = {
        1,
        2
       ],
-      "k": 0
+      "k": 1
      }
     }
    ]
   ],
   "view": [
-   -248,
-   -113,
-   127,
-   190
+   -83,
+   -129,
+   71,
+   131
   ],
   "lab": {
    "O": [
-    0.71,
+    -0.71,
     -0.71
    ],
    "R": [
-    0,
-    -1
-   ],
-   "P": [
-    0.71,
-    0.71
+    1,
+    0
    ]
   },
   "ghostAlt": 0,
   "mesures": {
-   "premier": 0.75,
-   "goulotLibre": 0.05,
-   "auxMin": 1
+   "premier": 0.5,
+   "goulotLibre": 0.16,
+   "auxMin": 1,
+   "occupation": 0.65
   }
  },
  "sm-angle-30": {
@@ -2380,10 +2241,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -91,
-   -174,
-   203,
-   92
+   -70,
+   -141,
+   80,
+   113
   ],
   "lab": {
    "A": [
@@ -2399,7 +2260,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 1,
    "goulotLibre": 0.33,
-   "auxMin": 1
+   "auxMin": 1,
+   "occupation": 0.65
   }
  },
  "sm-angle-60": {
@@ -2479,10 +2341,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -136,
-   -104,
-   99,
-   181
+   -86,
+   -149,
+   81,
+   134
   ],
   "lab": {
    "A": [
@@ -2502,7 +2364,130 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.5,
    "goulotLibre": 0.15,
-   "auxMin": 1
+   "auxMin": 1,
+   "occupation": 0.66
+  }
+ },
+ "sm-angle-75": {
+  "empreinte": "66f7c92550fa350d",
+  "par": 5,
+  "minCadre": 5,
+  "nbSolutions": 6,
+  "score": 8.98,
+  "refs": [
+   [
+    {
+     "t": "circle",
+     "a": "A",
+     "b": "B"
+    },
+    {
+     "t": "circle",
+     "a": "B",
+     "b": "A"
+    },
+    {
+     "t": "line",
+     "a": "A",
+     "b": {
+      "x": [
+       0,
+       1
+      ],
+      "k": 1
+     }
+    },
+    {
+     "t": "line",
+     "a": "B",
+     "b": {
+      "x": [
+       0,
+       2
+      ],
+      "k": 0
+     }
+    },
+    {
+     "t": "line",
+     "a": "A",
+     "b": {
+      "x": [
+       1,
+       3
+      ],
+      "k": 1
+     }
+    }
+   ],
+   [
+    {
+     "t": "circle",
+     "a": "A",
+     "b": "B"
+    },
+    {
+     "t": "circle",
+     "a": "B",
+     "b": "A"
+    },
+    {
+     "t": "line",
+     "a": "A",
+     "b": {
+      "x": [
+       0,
+       1
+      ],
+      "k": 0
+     }
+    },
+    {
+     "t": "line",
+     "a": "B",
+     "b": {
+      "x": [
+       0,
+       2
+      ],
+      "k": 0
+     }
+    },
+    {
+     "t": "line",
+     "a": "A",
+     "b": {
+      "x": [
+       1,
+       3
+      ],
+      "k": 1
+     }
+    }
+   ]
+  ],
+  "view": [
+   -76,
+   -88,
+   72,
+   162
+  ],
+  "lab": {
+   "A": [
+    -1,
+    0
+   ],
+   "B": [
+    0.38,
+    0.92
+   ]
+  },
+  "ghostAlt": 0,
+  "mesures": {
+   "premier": 0.67,
+   "goulotLibre": 0.09,
+   "auxMin": 2,
+   "occupation": 0.65
   }
  },
  "sm-bissectrice": {
@@ -2548,10 +2533,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -100,
-   -95,
-   110,
-   160
+   -88,
+   -159,
+   98,
+   154
   ],
   "lab": {
    "A": [
@@ -2571,84 +2556,16 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.33,
    "goulotLibre": 0.02,
-   "auxMin": 1
-  }
- },
- "sm-bissectrice-b": {
-  "empreinte": "3b9ed15158f59adf",
-  "par": 4,
-  "minCadre": 4,
-  "nbSolutions": 46,
-  "score": 9.5,
-  "refs": [
-   [
-    {
-     "t": "circle",
-     "a": "O",
-     "b": "A"
-    },
-    {
-     "t": "circle",
-     "a": "A",
-     "b": "O"
-    },
-    {
-     "t": "circle",
-     "a": {
-      "x": [
-       "lb",
-       0
-      ],
-      "k": 1
-     },
-     "b": "O"
-    },
-    {
-     "t": "line",
-     "a": "O",
-     "b": {
-      "x": [
-       1,
-       2
-      ],
-      "k": 1
-     }
-    }
-   ]
-  ],
-  "view": [
-   -144,
-   -124,
-   103,
-   97
-  ],
-  "lab": {
-   "O": [
-    0.71,
-    -0.71
-   ],
-   "A": [
-    0.71,
-    -0.71
-   ],
-   "B": [
-    0.92,
-    -0.38
-   ]
-  },
-  "ghostAlt": 0,
-  "mesures": {
-   "premier": 0.57,
-   "goulotLibre": 0.02,
-   "auxMin": 1
+   "auxMin": 1,
+   "occupation": 0.67
   }
  },
  "sm-mediatrice": {
-  "empreinte": "9e8220d65be5b8ca",
+  "empreinte": "a88d316616cb2254",
   "par": 3,
   "minCadre": 3,
   "nbSolutions": 1,
-  "score": 6,
+  "score": 4,
   "refs": [
    [
     {
@@ -2681,30 +2598,27 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -123,
-   -128,
-   133,
-   193
+   -70,
+   -141,
+   80,
+   113
   ],
   "lab": {
    "A": [
-    -1,
-    0
+    -0.92,
+    0.38
    ],
    "B": [
-    1,
-    0
-   ],
-   "C": [
-    0,
-    -1
+    0.92,
+    -0.38
    ]
   },
   "ghostAlt": 0,
   "mesures": {
-   "premier": 0.22,
-   "goulotLibre": 0.13,
-   "auxMin": 0
+   "premier": 0.67,
+   "goulotLibre": 0.5,
+   "auxMin": 0,
+   "occupation": 0.65
   }
  },
  "sm-milieu": {
@@ -2745,10 +2659,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -103,
-   -95,
-   99,
-   159
+   -76,
+   -88,
+   72,
+   162
   ],
   "lab": {
    "A": [
@@ -2764,7 +2678,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.67,
    "goulotLibre": 0.5,
-   "auxMin": 2
+   "auxMin": 2,
+   "occupation": 0.65
   }
  },
  "sm-parallele": {
@@ -2810,10 +2725,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -125,
-   -109,
-   241,
-   183
+   -100,
+   -155,
+   86,
+   159
   ],
   "lab": {
    "A": [
@@ -2833,76 +2748,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.78,
    "goulotLibre": 0.05,
-   "auxMin": 1
-  }
- },
- "sm-parallele-b": {
-  "empreinte": "4de6ec3ba22e2361",
-  "par": 4,
-  "minCadre": 4,
-  "nbSolutions": 32,
-  "score": 8.16,
-  "refs": [
-   [
-    {
-     "t": "line",
-     "a": "A",
-     "b": "P"
-    },
-    {
-     "t": "circle",
-     "a": "A",
-     "b": "P"
-    },
-    {
-     "t": "circle",
-     "a": "B",
-     "b": {
-      "x": [
-       0,
-       1
-      ],
-      "k": 0
-     }
-    },
-    {
-     "t": "line",
-     "a": "P",
-     "b": {
-      "x": [
-       1,
-       2
-      ],
-      "k": 1
-     }
-    }
-   ]
-  ],
-  "view": [
-   -200,
-   -161,
-   108,
-   86
-  ],
-  "lab": {
-   "A": [
-    0,
-    -1
-   ],
-   "B": [
-    0.38,
-    -0.92
-   ],
-   "P": [
-    0.38,
-    -0.92
-   ]
-  },
-  "ghostAlt": 0,
-  "mesures": {
-   "premier": 0.75,
-   "goulotLibre": 0.05,
-   "auxMin": 1
+   "auxMin": 1,
+   "occupation": 0.67
   }
  },
  "sm-perpendiculaire": {
@@ -2937,10 +2784,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -104,
-   -100,
-   99,
-   154
+   -86,
+   -149,
+   81,
+   134
   ],
   "lab": {
    "A": [
@@ -2960,129 +2807,56 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.25,
    "goulotLibre": 0.14,
-   "auxMin": 0
+   "auxMin": 0,
+   "occupation": 0.66
   }
  },
- "sm-perpendiculaire-b": {
-  "empreinte": "51def125ef8ee131",
-  "par": 3,
-  "minCadre": 3,
+ "sm-symetrique": {
+  "empreinte": "dcb686abad1eb0ff",
+  "par": 2,
+  "minCadre": 2,
   "nbSolutions": 5,
-  "score": 5.42,
+  "score": 3,
   "refs": [
    [
     {
      "t": "circle",
-     "a": "O",
-     "b": "B"
+     "a": "A",
+     "b": "P"
     },
     {
      "t": "circle",
-     "a": "A",
-     "b": "B"
-    },
-    {
-     "t": "line",
      "a": "B",
-     "b": {
-      "x": [
-       0,
-       1
-      ],
-      "k": 0
-     }
+     "b": "P"
     }
    ]
   ],
   "view": [
-   -122,
-   -113,
-   102,
-   166
-  ],
-  "lab": {
-   "O": [
-    0.71,
-    0.71
-   ],
-   "A": [
-    0.38,
-    0.92
-   ],
-   "B": [
-    1,
-    0
-   ]
-  },
-  "ghostAlt": 0,
-  "mesures": {
-   "premier": 0.29,
-   "goulotLibre": 0.09,
-   "auxMin": 0
-  }
- },
- "sm-perpendiculaire-en": {
-  "empreinte": "e30e738a2c1c340e",
-  "par": 3,
-  "minCadre": 3,
-  "nbSolutions": 1,
-  "score": 7.45,
-  "refs": [
-   [
-    {
-     "t": "circle",
-     "a": "P",
-     "b": "A"
-    },
-    {
-     "t": "line",
-     "a": "P",
-     "b": {
-      "x": [
-       "l",
-       0
-      ],
-      "k": 1
-     }
-    },
-    {
-     "t": "line",
-     "a": "A",
-     "b": {
-      "x": [
-       0,
-       1
-      ],
-      "k": 0
-     }
-    }
-   ]
-  ],
-  "view": [
-   -106,
-   -206,
-   119,
-   50
+   -93,
+   -121,
+   88,
+   185
   ],
   "lab": {
    "A": [
-    0.92,
-    -0.38
+    0,
+    -1
    ],
    "B": [
-    0.38,
-    -0.92
+    0,
+    -1
    ],
    "P": [
-    0.92,
-    -0.38
+    0,
+    -1
    ]
   },
   "ghostAlt": 0,
   "mesures": {
-   "premier": 0.13,
-   "goulotLibre": 0.08,
-   "auxMin": 1
+   "premier": 0.25,
+   "goulotLibre": 0.25,
+   "auxMin": 0,
+   "occupation": 0.61
   }
  },
  "sm-thales": {
@@ -3123,10 +2897,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -207,
-   -113,
-   118,
-   147
+   -88,
+   -159,
+   98,
+   154
   ],
   "lab": {
    "A": [
@@ -3146,7 +2920,8 @@ export const CERTIFICATS = {
   "mesures": {
    "premier": 0.11,
    "goulotLibre": 0.04,
-   "auxMin": 1
+   "auxMin": 1,
+   "occupation": 0.67
   }
  }
 };

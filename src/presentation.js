@@ -31,6 +31,7 @@ const P = {
   'triangle-equilateral': {
     titre: () => 'Triangle équilatéral',
     consigne: (b, fig) => `Construis un triangle équilatéral sur ${paire(fig, b.s)}.`,
+    sommets: (G, b, alt, alts) => [G[b.s[0]], G[b.s[1]], interLL(alts[alt][0], alts[alt][1])],
     celebrer: (G, b, alt, alts) => {
       const [A, B] = [G[b.s[0]], G[b.s[1]]];
       const apex = interLL(alts[alt][0], alts[alt][1]);
@@ -141,21 +142,25 @@ const P = {
   carre: {
     titre: () => 'Carré',
     consigne: (b) => `Construis les deux autres sommets d'un carré de côté [${b.s[0]}${b.s[1]}].`,
+    sommets: (G, b, alt, alts) => [G[b.s[0]], G[b.s[1]], alts[alt][0].p, alts[alt][1].p],
     celebrer: (G, b, alt, alts) => polygone([G[b.s[0]], G[b.s[1]], alts[alt][0].p, alts[alt][1].p]),
   },
   hexagone: {
     titre: () => 'Hexagone régulier',
     consigne: (b) => `Place les cinq autres sommets de l'hexagone régulier inscrit dans le cercle, en partant de ${b.c.R}.`,
+    sommets: (G, b, alt, alts) => [G[b.c.R], ...alts[0].map((e) => e.p)],
     celebrer: (G, b, alt, alts) => polygone([G[b.c.R], ...alts[0].map((e) => e.p)]),
   },
   'triangle-inscrit': {
     titre: () => 'Triangle inscrit',
     consigne: (b) => `Place les deux autres sommets du triangle équilatéral inscrit dans le cercle, en partant de ${b.c.R}.`,
+    sommets: (G, b, alt, alts) => [G[b.c.R], ...alts[0].map((e) => e.p)],
     celebrer: (G, b, alt, alts) => polygone([G[b.c.R], ...alts[0].map((e) => e.p)]),
   },
   'carre-inscrit': {
     titre: () => 'Carré inscrit',
     consigne: (b) => `Place les trois autres sommets du carré inscrit dans le cercle, en partant de ${b.c.R}.`,
+    sommets: (G, b, alt, alts) => [G[b.c.R], ...alts[0].map((e) => e.p)],
     celebrer: (G, b, alt, alts) => polygone([G[b.c.R], ...alts[0].map((e) => e.p)]),
   },
   'partage-en-3': {
@@ -171,7 +176,53 @@ const P = {
   parallelogramme: {
     titre: () => 'Parallélogramme',
     consigne: (b) => `Place le point D pour que ${b.t.join('')}D soit un parallélogramme.`,
+    sommets: (G, b, alt, alts) => [...b.t.map((k) => G[k]), alts[0][0].p],
     celebrer: (G, b, alt, alts) => polygone([...b.t.map((k) => G[k]), alts[0][0].p]),
+  },
+  'milieu-arc': {
+    titre: () => "Milieu d'un arc",
+    consigne: (b) => `Place le milieu du petit arc ${b.c.R}${b.S} du cercle.`,
+    celebrer: (G, b, alt, alts) => {
+      const O = G[b.c.O], M = alts[0][0].p;
+      return [{ seg: [O, G[b.c.R]], stroke: 'red' }, { seg: [O, G[b.S]], stroke: 'blue' }, { seg: [O, M], stroke: 'ink' }, { dot: M, fill: 'yellow' }];
+    },
+  },
+  symetrique: {
+    titre: () => 'Symétrique',
+    consigne: (b, fig) => `Construis le symétrique de ${b.P} par rapport ${aDroite(fig, b.d)}.`,
+    celebrer: (G, b, alt, alts) => {
+      const P = G[b.P], Q = alts[0][0].p, F = mul(add(P, Q), 0.5), u = unit(sub(G[b.d[1]], G[b.d[0]]));
+      return [{ seg: [P, F], stroke: 'red' }, { seg: [F, Q], stroke: 'blue' }, angleDroit(F, u, P), { dot: Q, fill: 'yellow' }];
+    },
+  },
+  'centre-gravite': {
+    titre: () => 'Centre de gravité',
+    consigne: (b) => `Construis le point où se coupent les trois médianes du triangle ${tri(b.t)}.`,
+    celebrer: (G, b, alt, alts) => {
+      const [A, B, C] = b.t.map((k) => G[k]), g = alts[0][0].p, m = (P, Q) => mul(add(P, Q), 0.5);
+      return [{ poly: [A, B, C], fill: 'yellow' }, { seg: [A, m(B, C)], stroke: 'red' }, { seg: [B, m(C, A)], stroke: 'blue' }, { seg: [C, m(A, B)], stroke: 'red' }, { dot: g, fill: 'ink' }];
+    },
+  },
+  orthocentre: {
+    titre: () => 'Orthocentre',
+    consigne: (b) => `Construis le point où se coupent les trois hauteurs du triangle ${tri(b.t)}.`,
+    celebrer: (G, b, alt, alts) => {
+      const [A, B, C] = b.t.map((k) => G[k]), H = alts[0][0].p;
+      const h = (P, Q, R) => { const F = pied(P, Q, R); return [{ seg: [P, F], stroke: 'blue' }, angleDroit(F, unit(sub(R, Q)), P)]; };
+      return [{ poly: [A, B, C], fill: 'yellow' }, ...h(A, B, C), ...h(B, C, A), ...h(C, A, B), { dot: H, fill: 'red' }];
+    },
+  },
+  rectangle: {
+    titre: () => 'Rectangle',
+    consigne: (b) => `Construis les deux autres sommets du rectangle de côté [${b.d[0]}${b.d[1]}] dont le côté opposé passe par ${b.P}.`,
+    sommets: (G, b, alt, alts) => [G[b.d[0]], G[b.d[1]], alts[0][0].p, alts[0][1].p],
+    celebrer: (G, b, alt, alts) => polygone([G[b.d[0]], G[b.d[1]], alts[0][0].p, alts[0][1].p]),
+  },
+  losange: {
+    titre: () => 'Losange',
+    consigne: (b) => `Construis le losange de côté [${b.a.O}${b.a.A}] dont un autre côté suit la droite (${b.a.O}${b.a.B}).`,
+    sommets: (G, b, alt, alts) => [G[b.a.O], G[b.a.A], alts[0][1].p, alts[0][0].p],
+    celebrer: (G, b, alt, alts) => polygone([G[b.a.O], G[b.a.A], alts[0][1].p, alts[0][0].p]),
   },
   report: {
     titre: () => 'Report de longueur',
@@ -179,7 +230,7 @@ const P = {
     celebrer: (G, b, alt, alts) => [{ seg: [G[b.s[0]], G[b.s[1]]], stroke: 'red' }, { seg: [G[b.s[1]], alts[0][0].p], stroke: 'blue' }, { dot: alts[0][0].p, fill: 'yellow' }],
   },
 };
-for (const deg of [60, 30, 45, 15]) {
+for (const deg of [60, 30, 45, 15, 75]) {
   P[`angle-${deg}`] = {
     titre: () => `Angle de ${deg}°`,
     consigne: (b, fig) => `Trace une droite qui passe par ${b.P} et fait un angle de ${deg}° avec ${droite(fig, b.d)}.`,
@@ -211,10 +262,13 @@ function tangentes(G, b, lignes) {
   out.push({ dot: O, fill: 'red' }, { dot: Pp, fill: 'yellow' });
   return out;
 }
-function polygone(sommets) {
-  // ordre autour du centre de gravité, pour un polygone convexe
+/** Sommets d'un polygone convexe, rangés autour de leur centre de gravité. */
+function ordonne(sommets) {
   const c = mul(sommets.reduce(add, [0, 0]), 1 / sommets.length);
-  const s = sommets.slice().sort((p, q) => Math.atan2(p[1] - c[1], p[0] - c[0]) - Math.atan2(q[1] - c[1], q[0] - c[0]));
+  return sommets.slice().sort((p, q) => Math.atan2(p[1] - c[1], p[0] - c[0]) - Math.atan2(q[1] - c[1], q[0] - c[0]));
+}
+function polygone(sommets) {
+  const s = ordonne(sommets);
   const out = [{ poly: s, fill: 'yellow' }];
   s.forEach((p, i) => out.push({ seg: [p, s[(i + 1) % s.length]], stroke: i % 2 ? 'blue' : 'red' }));
   for (const p of sommets) out.push({ dot: p, fill: 'ink' });
@@ -235,6 +289,13 @@ export function presentation(id) {
 }
 
 /** Objectif en pointillés : la variante choisie (droites et cercles en trait, points en cercles). */
-export function ghostDe(alts, alt = 0) {
+export function ghostDe(alts, alt = 0, pr = null, G = null, b = null) {
+  // Polygone : les côtés en segments (comme au niveau I.1), et les sommets à construire en cercles pointillés.
+  if (pr && pr.sommets) {
+    const sommets = ordonne(pr.sommets(G, b, alt, alts));
+    const out = sommets.map((p, i) => ({ seg: [p, sommets[(i + 1) % sommets.length]] }));
+    for (const el of alts[alt]) if (el.k === 'point') out.push({ dot: el.p });
+    return out;
+  }
   return alts[alt].map((el) => (el.k === 'point' ? { dot: el.p } : { line: el }));
 }

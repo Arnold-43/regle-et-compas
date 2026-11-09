@@ -147,6 +147,7 @@ export const CATALOGUE = [
   angleEntree(30),
   angleEntree(45),
   angleEntree(15),
+  angleEntree(75),
   {
     id: 'tangente',
     nom: 'Une tangente depuis un point',
@@ -267,6 +268,68 @@ export const CATALOGUE = [
     args: { t: 'triangle' },
     cible: (G, b) => { const [A, B, C] = b.t.map((k) => G[k]); return [[pt(add(A, sub(C, B)))]]; },
     libelle: (b) => `quatrième sommet D du parallélogramme ${b.t.join('')}D`,
+  },
+  {
+    id: 'milieu-arc',
+    nom: "Milieu d'un arc",
+    args: { c: 'cercle', S: 'point' },
+    cond: (G, b) => b.S !== b.c.R && Math.abs(dist(G[b.c.O], G[b.S]) - dist(G[b.c.O], G[b.c.R])) < 1e-6,
+    cible: (G, b) => {
+      const O = G[b.c.O], r = dist(O, G[b.c.R]);
+      return [[pt(add(O, mul(unit(add(sub(G[b.c.R], O), sub(G[b.S], O))), r)))]];
+    },
+    libelle: (b) => `milieu du petit arc ${b.c.R}${b.S}`,
+  },
+  {
+    id: 'symetrique',
+    nom: "Symétrique d'un point",
+    args: { d: 'droite', P: 'point' },
+    cond: horsD,
+    cible: (G, b) => {
+      const A = G[b.d[0]], u = unit(sub(G[b.d[1]], A)), P = G[b.P];
+      const F = add(A, mul(u, (P[0] - A[0]) * u[0] + (P[1] - A[1]) * u[1]));
+      return [[pt(sub(mul(F, 2), P))]];
+    },
+    libelle: (b) => `symétrique de ${b.P} par rapport à (${b.d[0]}${b.d[1]})`,
+  },
+  {
+    id: 'centre-gravite',
+    nom: 'Centre de gravité',
+    args: { t: 'triangle' },
+    cible: (G, b) => [[pt(mul(b.t.map((k) => G[k]).reduce(add, [0, 0]), 1 / 3))]],
+    libelle: (b) => `centre de gravité de ${b.t.join('')}`,
+  },
+  {
+    id: 'orthocentre',
+    nom: 'Orthocentre',
+    args: { t: 'triangle' },
+    cible: (G, b) => {
+      const [A, B, C] = b.t.map((k) => G[k]), O = centreCirconscrit(A, B, C);
+      return [[pt(sub(add(add(A, B), C), mul(O, 2)))]]; // H = A + B + C − 2·O
+    },
+    libelle: (b) => `orthocentre de ${b.t.join('')}`,
+  },
+  {
+    id: 'rectangle',
+    nom: 'Rectangle',
+    args: { d: 'droite', P: 'point' },
+    cond: horsD,
+    cible: (G, b) => {
+      const A = G[b.d[0]], B = G[b.d[1]], u = unit(sub(B, A)), n = perp(u);
+      const h = (G[b.P][0] - A[0]) * n[0] + (G[b.P][1] - A[1]) * n[1];
+      return [[pt(add(B, mul(n, h))), pt(add(A, mul(n, h)))]];
+    },
+    libelle: (b) => `rectangle de côté [${b.d[0]}${b.d[1]}] dont le côté opposé passe par ${b.P}`,
+  },
+  {
+    id: 'losange',
+    nom: 'Losange',
+    args: { a: 'angle' },
+    cible: (G, b) => {
+      const O = G[b.a.O], A = G[b.a.A], r = dist(O, A), A2 = add(O, mul(unit(sub(G[b.a.B], O)), r));
+      return [[pt(A2), pt(add(A, sub(A2, O)))]];
+    },
+    libelle: (b) => `losange de côté [${b.a.O}${b.a.A}] dans l'angle ${b.a.A}${b.a.O}${b.a.B}`,
   },
 ];
 
