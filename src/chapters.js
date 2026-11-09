@@ -36,16 +36,17 @@ import { CERTIFICATS } from './certificats.js';
  */
 /**
  * Ordre d'un chapitre : on part des dents de scie, puis on place à chaque rang le premier niveau dont
- * les prérequis (dans ce chapitre) sont déjà placés, en évitant si possible la même cible que le
- * niveau précédent.
+ * les prérequis (dans ce chapitre) sont déjà placés, en évitant si possible une cible déjà vue dans
+ * les 3 niveaux précédents (sinon dans le précédent seulement) : les variantes d'un même exercice
+ * sont espacées.
  */
 export function ordonner(ids, { score, apres = () => [], cible = (id) => id }) {
   const voulu = dentsDeScie(ids, score), out = [];
   while (out.length < ids.length) {
     const libres = voulu.filter((id) => !out.includes(id) && apres(id).every((p) => !ids.includes(p) || out.includes(p)));
     if (!libres.length) throw new Error(`prérequis circulaires entre ${voulu.filter((id) => !out.includes(id)).join(', ')}`);
-    const prec = out.length ? cible(out[out.length - 1]) : null;
-    out.push(libres.find((id) => cible(id) !== prec) || libres[0]);
+    const recentes = (n) => out.slice(-n).map(cible);
+    out.push(libres.find((id) => !recentes(3).includes(cible(id))) || libres.find((id) => !recentes(1).includes(cible(id))) || libres[0]);
   }
   return out;
 }

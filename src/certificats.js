@@ -1034,7 +1034,7 @@ export const CERTIFICATS = {
   }
  },
  "cp-losange": {
-  "empreinte": "851a5f416e1ee0a5",
+  "empreinte": "3e62e52a79faea26",
   "par": 3,
   "minCadre": 3,
   "nbSolutions": 9,
@@ -1065,10 +1065,10 @@ export const CERTIFICATS = {
    ]
   ],
   "view": [
-   -104,
-   -225,
-   146,
-   198
+   -92,
+   -195,
+   116,
+   157
   ],
   "lab": {
    "O": [

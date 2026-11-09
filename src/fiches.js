@@ -47,6 +47,7 @@ export const FIGURES = {
   'droite-point-b': { pts: { A: [-66, -22], B: [62, 6], P: [22, -78] }, given: [l('A', 'B')] },
   // angle de sommet O
   'angle': { pts: { O: [-70, 50], A: [50, 20], B: [0, -70] }, given: [l('O', 'A', 'la'), l('O', 'B', 'lb')] },
+  'angle-c': { pts: { O: [-62, 48], A: [38, 26], B: [14, -96] }, given: [l('O', 'A', 'la'), l('O', 'B', 'lb')] },
   'angle-b': { pts: { O: [64, 58], A: [-62, 36], B: [18, -72] }, given: [l('O', 'A', 'la'), l('O', 'B', 'lb')] },
   // triangles
   'triangle': { pts: { A: [-60, 40], B: [70, 25], C: [-5, -55] }, given: [s('B', 'C', 'a'), s('C', 'A', 'b'), s('A', 'B', 'c')] },
@@ -97,7 +98,7 @@ export const FICHES = [
   { id: 'cp-carre', chapitre: 'carres', figure: 'segment', objectif: { id: 'carre', args: { s: ['A', 'B'] } }, outils: ['line', 'circle', 'med'], apres: ['cp-perpendiculaire'] },
   { id: 'cp-carre-rc', chapitre: 'carres', figure: 'segment-b', objectif: { id: 'carre', args: { s: ['A', 'B'] } }, outils: ['line', 'circle'], apres: ['cp-carre'] },
   { id: 'cp-parallelogramme', chapitre: 'carres', figure: 'triangle', objectif: { id: 'parallelogramme', args: { t: ['A', 'B', 'C'] } }, outils: ['line', 'circle', 'med'] },
-  { id: 'cp-losange', chapitre: 'carres', figure: 'angle', objectif: { id: 'losange', args: { a: { O: 'O', A: 'A', B: 'B' } } }, outils: ['line', 'circle', 'med'], apres: ['cp-parallelogramme'] },
+  { id: 'cp-losange', chapitre: 'carres', figure: 'angle-c', objectif: { id: 'losange', args: { a: { O: 'O', A: 'A', B: 'B' } } }, outils: ['line', 'circle', 'med'], apres: ['cp-parallelogramme'] },
   { id: 'cp-partage-3', chapitre: 'carres', figure: 'segment', objectif: { id: 'partage-en-3', args: { s: ['A', 'B'] } }, outils: ['line', 'circle', 'med'], apres: ['cp-partage-4'] },
   { id: 'cp-partage-3-b', chapitre: 'carres', figure: 'angle', objectif: { id: 'partage-en-3', args: { s: ['O', 'B'] } }, outils: ['line', 'circle'], apres: ['cp-partage-3'], defi: true },
 ];

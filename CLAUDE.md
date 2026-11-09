@@ -43,7 +43,9 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 | `tools/metrics.js` | Mesures de difficulté et score provisoire (définitions exactes en tête de fichier). |
 | `tools/figures.js` | Figures de départ du générateur et association des rôles du catalogue. |
 | `tools/generate.js` | Générateur de candidats : JSON dans `tools/out/` (non versionné) + résumé trié par score. |
-| `tools/certify.js` | Certification des niveaux : exploration, refs tirées des solutions minimales, cadrage, lettres, garde-fous. |
+| `tools/certify.js` | Certification des niveaux : exploration, refs tirées des solutions minimales, cadrage, lettres, garde-fous par fiche. |
+| `tools/garde-fous.js` | Garde-fous de contenu des chapitres (cibles répétées, défi le plus dur, prérequis) ; `node tools/garde-fous.js`. |
+| `tools/occupation.js` | Place de la figure de départ à l'écran (téléphone de référence 390 × 844) ; cible ≥ 60 %. |
 | `tests/complet/` | Vérification exhaustive (minimums, solutions, cadre), lancée par `.github/workflows/verification-complete.yml`. |
 | `tests/levels.test.js` | Garde-fou de chaque niveau. |
 | `tests/chapters.test.js` | Garde-fou des chapitres et de la progression enregistrée (aucune perte en changeant de version). |
@@ -68,16 +70,20 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 - `score = 1·min + 0,75·aux + 1·(−log2 goulotLibre) − 0,5·log2(min(nbSolutions, 4))` (constantes `POIDS`, `PLAFOND_SOLUTIONS`). Coup guidé = tracé d'un objet de la cible (droite, cercle), visible en pointillés ; créer un point cible ne l'est pas, mais le joueur vise le point : la part de bons coups se calcule alors parmi les tracés qui passent par un point cible manquant. Provisoire : contrôle de cohérence sur les niveaux existants, pas un calage.
 
 ### Créer un niveau (fiche)
-1. Ajouter une fiche dans `src/fiches.js` (au bon rang de son chapitre ; défi en dernier, `defi: true`), avec une figure de `FIGURES` (positions génériques).
-2. `npm run certify` : calcule le certificat, ou rejette la fiche avec la raison (minimum hors de 2 à 5 coups, étoile hors du cadre jouable, coïncidence, indices qui ne mènent pas au minimum). Une fiche rejetée n'apparaît pas dans le jeu.
-3. `npm test`. Toute modification d'une figure, d'une cible ou des outils change l'empreinte : il faut recertifier.
-- Garde-fous testés : au plus 2 niveaux par cible du catalogue dans un chapitre, aucun niveau en 1 coup (hors ch. 1).
+1. Ajouter une fiche dans `src/fiches.js` (défi : `defi: true` ; prérequis : `apres: [ids]`), avec une figure de `FIGURES` (positions génériques, aucun point inutile).
+2. `npm run certify` : calcule le certificat, ou rejette la fiche avec la raison (minimum hors de 2 à 5 coups, point de départ décoratif, étoile hors du cadre jouable, coïncidence, indices qui ne mènent pas au minimum). Une fiche rejetée n'apparaît pas dans le jeu.
+   - Cadrage : la vue encadre la figure de départ et l'objectif, au format du téléphone ; elle n'est élargie que si la solution minimale sortirait du zoom arrière maximal.
+   - Ordre du chapitre (automatique) : prérequis d'abord, puis dents de scie d'après le score, variantes d'une même cible espacées.
+3. `node tools/garde-fous.js` puis `npm test`.
+   Toute modification d'une figure, d'une cible ou des outils change l'empreinte : il faut recertifier.
+- Garde-fous testés : voir les règles non négociables 8 à 12.
 - Mode test dans le jeu : 5 tapes sur le numéro de version (écran « Chapitres ») ouvrent tous les niveaux ; 5 de plus referment. Rien n'est enregistré pendant ce mode.
 
 ### Chapitres (`src/chapters.js`)
 - Un chapitre : `id`, `numero`, `titre`, `idee` (une phrase), `niveaux` (requis, dans l'ordre), `defi` (optionnel, en dernier).
 - Le chapitre suivant s'ouvre quand les niveaux requis du précédent sont réussis ; le défi n'est jamais requis. Dans un chapitre, chaque niveau requis ouvre le suivant ; le défi s'ouvre avec le dernier niveau requis.
-- La progression est rangée par **id de niveau** (`localStorage`, clé `regle-compas-v1`) : ne jamais changer l'id d'un niveau publié.
+- La progression est rangée par **id de niveau** (`localStorage`, clé `regle-compas-v1`) : ne jamais changer l'id d'un niveau publié, ni réutiliser l'id d'un niveau retiré.
+- Une mise à jour ne referme jamais un chapitre déjà ouvert : à chaque version qui change les niveaux requis d'un chapitre, ajouter l'ancienne liste dans `REQUIS_PUBLIES` (src/chapters.js).
 - En-tête : « Euclide · Livre I · Proposition N » si le niveau a un `prop`, sinon « Chapitre 2 · Les angles · 3/4 ».
 
 ## Règles non négociables
@@ -89,6 +95,11 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 5. **Enseigner avant d'exiger** : chaque astuce apparaît d'abord dans un niveau facile ; chaque construction réussie peut devenir un outil.
 6. **Indices progressifs** (points utiles → outil → tracé), un niveau aidé ne donne pas l'étoile.
 7. **Mesurer la difficulté plutôt que la deviner** (voir feuille de route).
+8. **Pas de doublon** (chapitres en fiches) : jamais deux fois la même cible du catalogue à la suite ; une cible ne revient dans un chapitre que si l'autre version apporte autre chose — d'autres outils, ou un score supérieur d'au moins 1,5 — et au plus 2 fois.
+9. **Pas de point décoratif** : chaque point de départ visible sert à l'objectif ou à au moins une solution minimale.
+10. **Le défi est le niveau le plus dur de son chapitre** (score strictement le plus haut), et il n'est jamais requis.
+11. **Enseigner dans l'ordre** : aucun niveau avant ses prérequis (`apres`).
+12. **Une mise à jour ne referme jamais un chapitre ouvert**, ni un niveau déjà réussi (testé).
 
 ## Conventions
 
@@ -101,7 +112,7 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 
 1. ~~Générateur de niveaux~~ (fait : `tools/generate.js`, catalogue `src/catalog.js`, fiches et `npm run certify`). Reste : étendre le catalogue et les figures de départ ; des niveaux à 5 coups sur figures riches demandent une recherche ciblée (le triangle et l'angle dépassent 10 min en exploration complète).
 2. ~~Mesures de difficulté~~ (faites : `tools/metrics.js`). Reste : le goulot tombe presque toujours au dernier coup (guidé par l'objectif en pointillés), à repenser ; caler les `POIDS` sur des données de jeu (temps, annulations, indices, abandons).
-3. **Chapitres** : 10 à 12 chapitres de 12 à 15 niveaux, **une seule idée par chapitre** (outil ou notion), courbe en dents de scie (introduction → montée → respiration → défi final optionnel). Sources : Euclide Livres I, III, IV, VI + variantes (compas seul, outillage restreint, autre figure de départ). Fait : ch. 1 « Les bases », ch. 2 « Les angles » (0.2.0), ch. 3 à 6 en fiches (0.3.0, 55 niveaux). Reste : chapitres 7 et suivants (parallèles, Livre III, Livre VI…) ; détail et écarts dans `docs/chapitres.md`.
+3. **Chapitres** : 10 à 12 chapitres de 12 à 15 niveaux, **une seule idée par chapitre** (outil ou notion), courbe en dents de scie (introduction → montée → respiration → défi final optionnel). Sources : Euclide Livres I, III, IV, VI + variantes (compas seul, outillage restreint, autre figure de départ). Fait : ch. 1 « Les bases », ch. 2 « Les angles » (0.2.0), ch. 3 à 6 en fiches (0.3.0, 55 niveaux ; 0.3.2 : 50 niveaux sans doublon, prérequis, cadrage). Reste : chapitres 7 et suivants (parallèles, Livre III, Livre VI…) ; détail et écarts dans `docs/chapitres.md`.
 4. **Télémétrie de jeu** anonyme pour calibrer la difficulté.
 5. **Play Store** : emballer le même code avec Capacitor.
 
