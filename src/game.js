@@ -5,7 +5,7 @@
 import * as RC from './engine.js';
 import { LEVELS } from './levels.js';
 import { CHAPITRES, ORDRE, niveauxDe, niveauOuvert, chapitreOuvert, premierAJouer, position, chapitreDe, avancement } from './chapters.js';
-import { vuePour, cadrageEnglobant, estVisible, flecheBord, interpole } from './vue.js';
+import { vuePour, cadrageEnglobant, estVisible, flecheBord, interpole, vueMontrant } from './vue.js';
 
 // Niveaux dans l'ordre des chapitres (écran des niveaux, « Niveau suivant »).
 const NIVEAUX = ORDRE.map((id) => LEVELS.find((l) => l.id === id));
@@ -117,10 +117,16 @@ function allerVers(v) {
 const pointsConstruits = () => (B ? B.points.filter((p) => !p.given).map((p) => p.p) : []);
 /** « Recadrer » : la figure et tous les points construits, dans la limite du zoom arrière maximal. */
 function recadrer() { allerVers(vuePour(cadrageEnglobant(lv().view, pointsConstruits()), W, H)); }
-/** Montre des points s'ils sont hors de l'écran (indice qui désigne un point invisible). */
+/** Bas de la carte d'indice, en pixels du canevas (0 si elle est cachée) : la zone au-dessus est masquée. */
+function basCarte() {
+  const hc = $('hintcard');
+  return hc.hidden ? 0 : hc.offsetTop + hc.offsetHeight;
+}
+/** Montre des points (indice) : hors de l'écran, on recadre ; cachés sous la carte d'indice, on fait glisser la vue. */
 function montrer(points) {
-  if (points.every((p) => estVisible(S.view, p, W, H, 18))) return;
-  allerVers(vuePour(cadrageEnglobant(lv().view, pointsConstruits().concat(points)), W, H));
+  if (!points.length) return;
+  const v = vueMontrant(S.view, points, W, H, { haut: basCarte() + 14, bord: 18, sMin: S.fitS * 0.35 });
+  if (v !== S.view) allerVers(v);
 }
 function resize() {
   const r = stage.getBoundingClientRect();
@@ -586,8 +592,8 @@ function onHint() {
   const lvl = S.hint && S.hint.key === key ? Math.min(3, S.hint.lvl + 1) : 1;
   S.hint = { key, lvl, step: h.step, remaining: h.remaining, show: true };
   S.hintUsed = true; S.sel = [];
-  montrer([h.step.a, h.step.b].map((id) => B.byId.get(id)).filter(Boolean).map((q) => q.p));
   showHint(`Indice ${lvl} sur 3`, hintText(S.hint));
+  montrer([h.step.a, h.step.b].map((id) => B.byId.get(id)).filter(Boolean).map((q) => q.p)); // après la carte : on la mesure
   updateUI(); render();
 }
 function showHint(kicker, text) { $('hintKicker').textContent = kicker; $('hintText').textContent = text; $('hintcard').hidden = false; }
@@ -784,7 +790,7 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
 if (/[?&]debug\b/.test(location.search)) {
   window.__regleCompas = {
     etat: () => ({
-      id: lv().id, W, H, view: { ...S.view }, anim: !!vueAnim, solved: S.solved, coups: S.specs.length, objectifVisible,
+      id: lv().id, W, H, view: { ...S.view }, anim: !!vueAnim, solved: S.solved, coups: S.specs.length, objectifVisible, basCarte: basCarte(),
       indice: S.hint && S.hint.show ? { t: S.hint.step.t, a: S.hint.step.a, b: S.hint.step.b } : null,
       points: Object.fromEntries(B.points.map((p) => [p.id, p.p])),
     }),

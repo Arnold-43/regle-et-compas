@@ -52,3 +52,19 @@ test('avancement d’un chapitre : réussis et étoiles sur le total, défi comp
   assert.equal(avancement({ done: {} }, ch).texte, '0/4 · ★ 0');
   assert.equal(chapitreEnCours({ done: {} }).id, 'bases');
 });
+
+test('vueMontrant : glisse si les points tiennent, dézoome sinon, jamais sous le zoom maximal', async () => {
+  const { vueMontrant } = await import('../src/vue.js');
+  const v = vuePour(VIEW, W, H), haut = 140;
+  const dans = (vv, p) => { const [x, y] = versEcran(vv, p); return x >= 16 && x <= W - 16 && y >= haut && y <= H - 16; };
+  // déjà visible sous la carte : rien ne change
+  assert.equal(vueMontrant(v, [[0, 0]], W, H, { haut }), v);
+  // caché sous la carte : simple glissement, même échelle
+  const g = vueMontrant(v, [[0, -140]], W, H, { haut });
+  assert.equal(g.s, v.s); assert.ok(dans(g, [0, -140]));
+  // deux points trop écartés pour la zone : on dézoome, et les deux sont montrés
+  const pts = [[0, -150], [0, 150]], d = vueMontrant(v, pts, W, H, { haut, sMin: v.s * ZOOM_MIN });
+  assert.ok(d.s < v.s && d.s >= v.s * ZOOM_MIN); for (const p of pts) assert.ok(dans(d, p), String(p));
+  // jamais sous sMin
+  assert.ok(vueMontrant(v, [[0, -5000], [0, 5000]], W, H, { haut, sMin: v.s * ZOOM_MIN }).s >= v.s * ZOOM_MIN - 1e-12);
+});

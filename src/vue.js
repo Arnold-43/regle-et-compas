@@ -67,3 +67,31 @@ export function interpole(a, b, t) {
   const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
   return { s: a.s + (b.s - a.s) * e, tx: a.tx + (b.tx - a.tx) * e, ty: a.ty + (b.ty - a.ty) * e };
 }
+
+/**
+ * Vue la plus proche de v qui montre tous les points dans la zone [bord, W − bord] × [haut, H − bord]
+ * (haut : sous la carte d'indice). On garde l'échelle si les points y tiennent (simple glissement), sinon
+ * on dézoome juste ce qu'il faut, sans passer sous sMin (zoom arrière maximal). Renvoie v s'il n'y a rien à faire.
+ */
+export function vueMontrant(v, points, W, H, { haut = 0, bord = 16, sMin = 0 } = {}) {
+  const top = Math.max(bord, haut);
+  const zw = W - 2 * bord, zh = H - bord - top;
+  const xs = points.map((p) => p[0]), ys = points.map((p) => p[1]);
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const dedans = (vv) => points.every((p) => { const x = p[0] * vv.s + vv.tx, y = p[1] * vv.s + vv.ty; return x >= bord && x <= W - bord && y >= top && y <= H - bord; });
+  if (dedans(v)) return v;
+  let s = v.s;
+  if ((x1 - x0) * s > zw || (y1 - y0) * s > zh) s = Math.max(sMin, Math.min(zw / Math.max(x1 - x0, 1e-9), zh / Math.max(y1 - y0, 1e-9)));
+  // déplacement minimal : chaque axe ramène la boîte des points dans la zone
+  const ajuste = (a0, a1, t, lo, hi) => {
+    const p0 = a0 * s + t, p1 = a1 * s + t;
+    if (p1 - p0 > hi - lo) return t + ((lo + hi) / 2 - (p0 + p1) / 2);
+    if (p0 < lo) return t + (lo - p0);
+    if (p1 > hi) return t - (p1 - hi);
+    return t;
+  };
+  // à échelle changée, on garde le centre de l'écran fixe avant d'ajuster
+  const cx = W / 2, cy = H / 2, k = s / v.s;
+  const tx0 = cx - (cx - v.tx) * k, ty0 = cy - (cy - v.ty) * k;
+  return { s, tx: ajuste(x0, x1, tx0, bord, W - bord), ty: ajuste(y0, y1, ty0, top, H - bord) };
+}
