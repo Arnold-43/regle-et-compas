@@ -150,3 +150,14 @@ export function position(id) {
   const tous = niveauxDe(ch);
   return { chapitre: ch, rang: tous.indexOf(id) + 1, total: tous.length };
 }
+
+/** Avancement d'un chapitre : niveaux réussis et étoiles, sur le total des niveaux (défi compris). */
+export function avancement(prog, ch) {
+  const ids = niveauxDe(ch);
+  const resolus = ids.filter((id) => estResolu(prog, id)).length;
+  const etoiles = ids.filter((id) => prog.done && prog.done[id] && prog.done[id].star).length;
+  return { resolus, etoiles, total: ids.length, defis: ch.defi ? 1 : 0, texte: `${resolus}/${ids.length} · ★ ${etoiles}` };
+}
+
+/** Chapitre en cours : celui du niveau à jouer (premier niveau requis ouvert et pas réussi). */
+export const chapitreEnCours = (prog) => chapitreDe(premierAJouer(prog));

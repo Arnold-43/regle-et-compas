@@ -4,7 +4,8 @@
  */
 import * as RC from './engine.js';
 import { LEVELS } from './levels.js';
-import { CHAPITRES, ORDRE, niveauxDe, niveauOuvert, chapitreOuvert, premierAJouer, position, chapitreDe } from './chapters.js';
+import { CHAPITRES, ORDRE, niveauxDe, niveauOuvert, chapitreOuvert, premierAJouer, position, chapitreDe, avancement } from './chapters.js';
+import { vuePour, cadrageEnglobant, estVisible, flecheBord, interpole, vueMontrant } from './vue.js';
 
 // Niveaux dans l'ordre des chapitres (écran des niveaux, « Niveau suivant »).
 const NIVEAUX = ORDRE.map((id) => LEVELS.find((l) => l.id === id));
@@ -49,13 +50,25 @@ const done = (i) => prog.done[NIVEAUX[i].id] || {};
 // Mode test : 5 tapes sur le numéro de version (écran des chapitres) ouvrent tous les niveaux, 5 de plus
 // referment. Rien n'est enregistré pendant le mode test : la progression reste celle d'avant.
 let modeTest = false;
+// Objectif en pointillés : affiché par défaut ; le choix (bouton œil) vaut pour tous les niveaux.
+const CLE_OBJECTIF = 'regle-compas-objectif';
+let objectifVisible = true;
+try { objectifVisible = localStorage.getItem(CLE_OBJECTIF) !== 'masque'; } catch (e) { /* stockage indisponible : affiché */ }
 const unlocked = (i) => modeTest || niveauOuvert(prog, NIVEAUX[i].id);
 const firstOpen = () => Math.max(0, ORDRE.indexOf(premierAJouer(prog)));
-/** Ligne d'en-tête : la proposition d'Euclide, sinon la place dans le chapitre. */
-function eyebrowOf(L, suffixe) {
-  if (L.prop) return `Euclide · Livre I · Proposition ${L.prop}` + (suffixe ? ` · ${suffixe}` : '');
-  const p = position(L.id);
-  return `Chapitre ${p.chapitre.numero} · ${p.chapitre.titre} · ${p.rang}/${p.total}` + (suffixe ? ` · ${suffixe}` : '');
+/** Lignes d'en-tête possibles, de la plus longue à la plus courte : la proposition d'Euclide, sinon la place dans le chapitre. */
+function eyebrowsOf(L, suffixe) {
+  const fin = suffixe ? ` · ${suffixe}` : '';
+  if (L.prop) return [`Euclide · Livre I · Proposition ${L.prop}${fin}`, `Euclide · Livre I · Prop. ${L.prop}${fin}`, `Euclide ${L.id}${fin}`];
+  const p = position(L.id), c = p.chapitre, r = `${p.rang}/${p.total}`;
+  return [`Chapitre ${c.numero} · ${c.titre} · ${r}${fin}`, `Ch. ${c.numero} · ${c.titre} · ${r}${fin}`, `Ch. ${c.numero} · ${r}${fin}`];
+}
+/** Écrit la plus longue variante qui tient sur une ligne dans l'élément (sinon la plus courte, tronquée). */
+function uneLigne(el, variantes) {
+  for (const t of variantes) {
+    el.textContent = t;
+    if (el.scrollWidth <= el.clientWidth + 1) return;
+  }
 }
 /** Pastille d'un niveau dans la liste : I.10 pour Euclide, 2.3 sinon. */
 function badgeOf(L) {
@@ -86,14 +99,34 @@ new MutationObserver(readColors).observe(document.documentElement, { attributes:
 // ---------- vue ----------
 const T = (v, p) => [p[0] * v.s + v.tx, p[1] * v.s + v.ty];
 const toW = (v, x, y) => [(x - v.tx) / v.s, (y - v.ty) / v.s];
+/** Cadrage initial du niveau (au chargement et quand l'écran change de taille). */
 function fitView() {
-  const r = lv().view, pad = 8;
-  const s = Math.min((W - pad * 2) / (r[2] - r[0]), (H - pad * 2) / (r[3] - r[1]));
-  const cx = (r[0] + r[2]) / 2, cy = (r[1] + r[3]) / 2;
-  S.view = { s, tx: W / 2 - cx * s, ty: H / 2 - cy * s };
-  S.fitS = s;
+  vueAnim = null;
+  S.view = vuePour(lv().view, W, H);
+  S.fitS = S.view.s; // échelle de référence du zoom (0,35 à 10 fois)
   S.userView = false;
   render();
+}
+// Recadrage en douceur vers une vue écran
+let vueAnim = null;
+function allerVers(v) {
+  if (!DUR) { S.view = v; S.userView = true; render(); return; }
+  vueAnim = { de: { ...S.view }, vers: v, t0: performance.now(), dur: 450 };
+  S.userView = true; render();
+}
+const pointsConstruits = () => (B ? B.points.filter((p) => !p.given).map((p) => p.p) : []);
+/** « Recadrer » : la figure et tous les points construits, dans la limite du zoom arrière maximal. */
+function recadrer() { allerVers(vuePour(cadrageEnglobant(lv().view, pointsConstruits()), W, H)); }
+/** Bas de la carte d'indice, en pixels du canevas (0 si elle est cachée) : la zone au-dessus est masquée. */
+function basCarte() {
+  const hc = $('hintcard');
+  return hc.hidden ? 0 : hc.offsetTop + hc.offsetHeight;
+}
+/** Montre des points (indice) : hors de l'écran, on recadre ; cachés sous la carte d'indice, on fait glisser la vue. */
+function montrer(points) {
+  if (!points.length) return;
+  const v = vueMontrant(S.view, points, W, H, { haut: basCarte() + 14, bord: 18, sMin: S.fitS * 0.35 });
+  if (v !== S.view) allerVers(v);
 }
 function resize() {
   const r = stage.getBoundingClientRect();
@@ -115,7 +148,13 @@ function draw() {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = col.sheet; ctx.fillRect(0, 0, W, H);
-  let anim = scene(ctx, S.view, now);
+  let anim = false;
+  if (vueAnim) {
+    const t = Math.min(1, (now - vueAnim.t0) / vueAnim.dur);
+    S.view = interpole(vueAnim.de, vueAnim.vers, t);
+    if (t >= 1) vueAnim = null; else anim = true;
+  }
+  anim = scene(ctx, S.view, now) || anim;
   if (press && press.loupe) anim = drawLoupe(now) || anim;
   if (anim) render();
 }
@@ -214,8 +253,8 @@ function scene(c, v, now) {
 
   if (L.decor) for (const sh of L.decor(G)) drawShape(c, v, sh, 1);
 
-  // objectif, en pointillés pâles
-  if (!S.solved) {
+  // objectif, en pointillés pâles (masquable : bouton œil)
+  if (!S.solved && objectifVisible) {
     c.save();
     c.setLineDash([5, 6]); c.strokeStyle = col.blue; c.globalAlpha = 0.4; c.lineWidth = 1.5;
     for (const gh of L.ghost(G)) {
@@ -289,6 +328,16 @@ function scene(c, v, now) {
     c.fillStyle = col.sheet; c.fill();
     c.lineWidth = 1.25; c.strokeStyle = col.graphite; c.stroke();
   }
+  // points construits hors de l'écran : petite flèche sur le bord, de leur côté
+  const indices = S.hint && S.hint.show ? [S.hint.step.a, S.hint.step.b] : [];
+  for (const p of B.points) {
+    const f = flecheBord(v, p.p, W, H);
+    if (!f || (p.given && !indices.includes(p.id))) continue;
+    c.save(); c.translate(f.x, f.y); c.rotate(f.angle);
+    c.fillStyle = indices.includes(p.id) ? col.red : col.graphite;
+    c.beginPath(); c.moveTo(7, 0); c.lineTo(-5, -5.5); c.lineTo(-5, 5.5); c.closePath(); c.fill();
+    c.restore();
+  }
   // sélection
   for (const id of S.sel) {
     const p = B.byId.get(id); if (!p) continue;
@@ -361,6 +410,7 @@ function pick(x, y, rad) {
   return best;
 }
 cv.addEventListener('pointerdown', (e) => {
+  vueAnim = null;
   try { cv.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
   const [x, y] = pos(e);
   ptrs.set(e.pointerId, [x, y]);
@@ -425,6 +475,7 @@ cv.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && S.
 cv.addEventListener('wheel', (e) => {
   e.preventDefault();
   const [x, y] = pos(e);
+  vueAnim = null;
   const s = clamp(S.view.s * Math.exp(-e.deltaY * 0.0015), S.fitS * 0.35, S.fitS * 10);
   const w = toW(S.view, x, y);
   S.view = { s, tx: x - w[0] * s, ty: y - w[1] * s };
@@ -481,7 +532,9 @@ function win(alt) {
   d.best = Math.min(d.best || Infinity, n);
   if (!modeTest) { prog.done[L.id] = d; save(); }
 
-  $('sheetEyebrow').textContent = L.prop ? `Euclide ${L.id} · résolu` : eyebrowOf(L, 'résolu');
+  $('sheet').hidden = false; // mesurable pour choisir l'en-tête qui tient sur une ligne
+  uneLigne($('sheetEyebrow'), L.prop ? [`Euclide ${L.id} · résolu`] : eyebrowsOf(L, 'résolu'));
+  if (!$('sheet').classList.contains('in')) $('sheet').hidden = true;
   $('sheetMoves').textContent = n;
   $('sheetUnit').textContent = n > 1 ? 'coups' : 'coup';
   $('sheetStarMark').dataset.on = star ? '1' : '0';
@@ -540,6 +593,7 @@ function onHint() {
   S.hint = { key, lvl, step: h.step, remaining: h.remaining, show: true };
   S.hintUsed = true; S.sel = [];
   showHint(`Indice ${lvl} sur 3`, hintText(S.hint));
+  montrer([h.step.a, h.step.b].map((id) => B.byId.get(id)).filter(Boolean).map((q) => q.p)); // après la carte : on la mesure
   updateUI(); render();
 }
 function showHint(kicker, text) { $('hintKicker').textContent = kicker; $('hintText').textContent = text; $('hintcard').hidden = false; }
@@ -555,7 +609,7 @@ function toast(msg, ms) {
 }
 function updateUI() {
   const L = lv(), n = S.specs.length, m = maxMoves();
-  $('eyebrow').textContent = eyebrowOf(L);
+  uneLigne($('eyebrow'), eyebrowsOf(L));
   $('title').textContent = L.title;
   $('goal').textContent = L.goal;
   $('moves').innerHTML = `${n}<span>/${m}</span>`;
@@ -598,28 +652,37 @@ function loadLevel(i) {
   }
 }
 
+const CADENAS = '<svg class="ic lock" viewBox="0 0 28 28" aria-hidden="true"><rect x="7" y="13" width="14" height="10" rx="2"/><path d="M10 13V9.5a4 4 0 0 1 8 0V13"/></svg>';
 function renderLevels() {
   const ul = $('lvList');
   ul.innerHTML = '';
-  let stars = 0, solved = 0;
+  let stars = 0, solved = 0, enCours = null;
+  const courant = chapitreDe(NIVEAUX[S.li].id);
   for (const ch of CHAPITRES) {
-    const ouvert = chapitreOuvert(prog, ch);
-    const k = CHAPITRES.indexOf(ch);
+    const ouvert = modeTest || chapitreOuvert(prog, ch);
+    const k = CHAPITRES.indexOf(ch), av = avancement(prog, ch);
+    stars += av.etoiles; solved += av.resolus;
     const head = document.createElement('li');
     head.className = 'lv-ch';
     head.dataset.locked = ouvert ? '' : '1';
-    head.innerHTML = `<span class="lv-ch-num">Chapitre ${ch.numero}</span>` +
+    head.innerHTML = `<span class="lv-ch-top"><span class="lv-ch-num">${ouvert ? '' : CADENAS}Chapitre ${ch.numero}</span>` +
+      `<span class="lv-ch-av" aria-label="${av.resolus} niveaux réussis sur ${av.total}, ${av.etoiles} étoiles">${av.texte}</span></span>` +
       `<span class="lv-ch-title">${ch.titre}</span>` +
-      `<span class="lv-ch-idea">${ouvert ? ch.idee : `Réussis les niveaux du chapitre ${CHAPITRES[k - 1].numero} pour l’ouvrir.`}</span>`;
+      `<span class="lv-ch-idea">${ch.idee}</span>` +
+      (ouvert ? '' : `<span class="lv-ch-cond">Réussis les niveaux du chapitre ${CHAPITRES[k - 1].numero} pour l’ouvrir.</span>`);
     ul.appendChild(head);
-    for (const id of niveauxDe(ch)) {
-      const i = ORDRE.indexOf(id), d = done(i);
-      if (d.star) stars++;
-      if (d.solved) solved++;
-      ul.appendChild(levelItem(i, d));
+    if (ch === courant) enCours = head;
+    if (!ouvert) { // niveaux repliés en une ligne
+      const li = document.createElement('li');
+      li.className = 'lv-pli';
+      li.textContent = `${av.total} niveaux` + (av.defis ? `, dont ${av.defis} défi` : '');
+      ul.appendChild(li);
+      continue;
     }
+    for (const id of niveauxDe(ch)) ul.appendChild(levelItem(ORDRE.indexOf(id), done(ORDRE.indexOf(id))));
   }
   $('lvTally').textContent = `${solved} sur ${NIVEAUX.length} résolus · ${stars} étoile${stars > 1 ? 's' : ''}`;
+  return enCours;
 }
 function levelItem(i, d) {
   const L = NIVEAUX[i], un = unlocked(i);
@@ -638,9 +701,11 @@ function levelItem(i, d) {
   return li;
 }
 function openLevels() {
-  renderLevels();
+  const enCours = renderLevels();
   $('wipeBtn').dataset.armed = ''; $('wipeBtn').textContent = 'Effacer la progression';
   $('levels').hidden = false;
+  // défile jusqu'au chapitre en cours (celui du niveau ouvert)
+  if (enCours) requestAnimationFrame(() => { $('levels').scrollTop = Math.max(0, enCours.offsetTop - 12); });
 }
 function closeLevels() { $('levels').hidden = true; }
 
@@ -660,7 +725,19 @@ $('undoBtn').addEventListener('click', undo);
 $('resetBtn').addEventListener('click', wipe);
 $('hintBtn').addEventListener('click', onHint);
 $('hintcard').addEventListener('click', hideHint);
-$('fitBtn').addEventListener('click', fitView);
+$('fitBtn').addEventListener('click', recadrer);
+// Objectif en pointillés : affiché par défaut, choix mémorisé pour tous les niveaux.
+function majBoutonObjectif() {
+  const b = $('ghostBtn'), l = objectifVisible ? 'Masquer l’objectif' : 'Afficher l’objectif';
+  b.setAttribute('aria-label', l); b.title = l; b.setAttribute('aria-pressed', objectifVisible ? 'false' : 'true');
+  b.dataset.masque = objectifVisible ? '' : '1';
+}
+$('ghostBtn').addEventListener('click', () => {
+  objectifVisible = !objectifVisible;
+  try { localStorage.setItem(CLE_OBJECTIF, objectifVisible ? 'affiche' : 'masque'); } catch (e) { /* le choix vaut pour la session */ }
+  majBoutonObjectif(); render();
+});
+majBoutonObjectif();
 $('menuBtn').addEventListener('click', openLevels);
 $('closeLevels').addEventListener('click', closeLevels);
 $('nextBtn').addEventListener('click', () => {
@@ -707,4 +784,18 @@ if (prog.lastVersion !== versionLabel) { prog.lastVersion = versionLabel; save()
 // Hors ligne et installation sur l'écran d'accueil (uniquement en HTTPS)
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   navigator.serviceWorker.register('./sw.js').catch(() => { /* le jeu marche sans */ });
+}
+
+// Crochet de test (Playwright) : seulement avec ?debug dans l'adresse ; sans effet sur le jeu normal.
+if (/[?&]debug\b/.test(location.search)) {
+  window.__regleCompas = {
+    etat: () => ({
+      id: lv().id, W, H, view: { ...S.view }, anim: !!vueAnim, solved: S.solved, coups: S.specs.length, objectifVisible, basCarte: basCarte(),
+      indice: S.hint && S.hint.show ? { t: S.hint.step.t, a: S.hint.step.a, b: S.hint.step.b } : null,
+      points: Object.fromEntries(B.points.map((p) => [p.id, p.p])),
+    }),
+    aller: (id) => { modeTest = true; loadLevel(ORDRE.indexOf(id)); },
+    indice: () => onHint(),
+    jouer: (t, a, b) => { S.tool = t; S.sel = []; onPoint(B.byId.get(a)); onPoint(B.byId.get(b)); },
+  };
 }

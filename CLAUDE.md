@@ -34,7 +34,8 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 | `src/certificats.js` | **Écrit par `npm run certify`** : empreinte, minimum, solutions, score, refs, cadrage et lettres de chaque niveau. |
 | `src/chapters.js` | Chapitres (une idée chacun, défi optionnel) et règles d'ouverture. Pur, testé dans `tests/chapters.test.js`. |
 | `src/catalog.js` | Catalogue des figures remarquables (médiatrice, tangente, carré…) : nom + fonction pure qui calcule la cible. Pur. |
-| `src/game.js` | Interface : canvas, toucher (loupe, pincer, glisser), règles du jeu, progression (localStorage), version. |
+| `src/game.js` | Interface : canvas, toucher (loupe, pincer, glisser), règles du jeu, progression (localStorage), version. Avec `?debug` dans l'adresse : crochet de test `window.__regleCompas` (Playwright). |
+| `src/vue.js` | Calculs de vue purs (cadrage qui englobe des points dans la limite du zoom, visibilité, flèche de bord, recadrage en douceur), testés dans `tests/vue.test.js`. |
 | `src/index.html`, `src/styles.css` | Squelette et styles (jetons de couleur lus par le canvas). |
 | `src/sw.js`, `src/manifest.webmanifest`, `src/icons/` | App installable et hors ligne. |
 | `src/version.js` | Version de dev ; remplacé au build. |
@@ -67,12 +68,15 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 - `nbSolutions` : ensembles d'objets distincts de `min` coups qui résolvent (l'ordre ne compte pas).
 - Part de bons coups par étape : un coup est bon si l'ensemble tracé reste inclus dans une solution minimale. `premier`, `moyenne`, `goulot` (pire étape, brut) et `goulotLibre` (sans les étapes guidées, utilisé dans le score).
 - `aux` : points construits servant d'appui, hors de la cible (min et max sur les solutions minimales).
+- **Les scores supposent l'objectif affiché** en pointillés (choix par défaut ; le joueur peut le masquer avec le bouton œil, ce qui rend le niveau plus dur sans changer l'étoile ni les indices).
 - `score = 1·min + 0,75·aux + 1·(−log2 goulotLibre) − 0,5·log2(min(nbSolutions, 4))` (constantes `POIDS`, `PLAFOND_SOLUTIONS`). Coup guidé = tracé d'un objet de la cible (droite, cercle), visible en pointillés ; créer un point cible ne l'est pas, mais le joueur vise le point : la part de bons coups se calcule alors parmi les tracés qui passent par un point cible manquant. Provisoire : contrôle de cohérence sur les niveaux existants, pas un calage.
 
 ### Créer un niveau (fiche)
 1. Ajouter une fiche dans `src/fiches.js` (défi : `defi: true` ; prérequis : `apres: [ids]`), avec une figure de `FIGURES` (positions génériques, aucun point inutile).
 2. `npm run certify` : calcule le certificat, ou rejette la fiche avec la raison (minimum hors de 2 à 5 coups, point de départ décoratif, étoile hors du cadre jouable, coïncidence, indices qui ne mènent pas au minimum). Une fiche rejetée n'apparaît pas dans le jeu.
    - Cadrage : la vue encadre la figure de départ et l'objectif, au format du téléphone ; elle n'est élargie que si la solution minimale sortirait du zoom arrière maximal.
+   - Refs : pour chaque variante d'objectif, une solution minimale dont tous les points restent dans la vue initiale est préférée (champ `refsHorsVue` du certificat : refs qui n'ont pas pu l'être).
+   - Consigne : elle doit suffire sans les pointillés (le joueur peut masquer l'objectif).
    - Ordre du chapitre (automatique) : prérequis d'abord, puis dents de scie d'après le score, variantes d'une même cible espacées.
 3. `node tools/garde-fous.js` puis `npm test`.
    Toute modification d'une figure, d'une cible ou des outils change l'empreinte : il faut recertifier.
@@ -84,7 +88,9 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 - Le chapitre suivant s'ouvre quand les niveaux requis du précédent sont réussis ; le défi n'est jamais requis. Dans un chapitre, chaque niveau requis ouvre le suivant ; le défi s'ouvre avec le dernier niveau requis.
 - La progression est rangée par **id de niveau** (`localStorage`, clé `regle-compas-v1`) : ne jamais changer l'id d'un niveau publié, ni réutiliser l'id d'un niveau retiré.
 - Une mise à jour ne referme jamais un chapitre déjà ouvert : à chaque version qui change les niveaux requis d'un chapitre, ajouter l'ancienne liste dans `REQUIS_PUBLIES` (src/chapters.js).
-- En-tête : « Euclide · Livre I · Proposition N » si le niveau a un `prop`, sinon « Chapitre 2 · Les angles · 3/4 ».
+- En-tête : « Euclide · Livre I · Proposition N » si le niveau a un `prop`, sinon « Chapitre 2 · Les angles · 3/4 » ; il tient toujours sur une ligne (à 390 px, on abrège : « Ch. 5 · Centres et tangentes · 8/10 », puis « Ch. 5 · 8/10 »).
+- Écran « Chapitres » : chaque chapitre montre son avancement (`avancement()` : « 3/12 · ★ 2 », défi compris) ; un chapitre fermé garde titre et idée, avec un cadenas, la condition d'ouverture et ses niveaux repliés (« 12 niveaux, dont 1 défi ») ; l'écran s'ouvre sur le chapitre en cours.
+- Feuille de jeu : « Recadrer » englobe tous les points construits (dans la limite du zoom arrière) ; un indice qui désigne un point hors de l'écran recadre la vue ; un point construit hors de l'écran est signalé par une flèche sur le bord.
 
 ## Règles non négociables
 

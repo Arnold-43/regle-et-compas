@@ -166,12 +166,20 @@ export function certifierFiche(f, { limiteMs }) {
   if (rt.min < 2) return rejet(`minimum de ${rt.min} coup`);
   const min = rt.min, alts = lv0.target(lv0.pts);
   // une solution par variante d'objectif, la plus simple (moins de points auxiliaires)
+  // une solution par variante : d'abord celles dont tous les points restent dans la vue initiale (le joueur
+  // les voit, et un indice ne désigne jamais un point invisible), puis la plus simple (moins de points auxiliaires)
+  const vueBase = cadrage(lv0, [], alts);
+  const dansVue = (specs) => {
+    const b = build(lv0, lv0.pts, specs);
+    return specs.every((st) => [st.a, st.b].every((id) => { const p = b.byId.get(id).p; return p[0] >= vueBase[0] && p[0] <= vueBase[2] && p[1] >= vueBase[1] && p[1] <= vueBase[3]; }));
+  };
+  const meilleur = (x, y) => (x.vue !== y.vue ? x.vue : x.aux < y.aux);
   const parAlt = new Map();
   for (const specs of rt.solutions.values()) {
     const b = build(lv0, lv0.pts, specs), a = solvedIn(lv0, lv0.pts, b);
     if (a < 0 || !verify(lv0, specs).ok) continue;
-    const aux = auxiliaires(lv0, specs);
-    if (!parAlt.has(a) || aux < parAlt.get(a).aux) parAlt.set(a, { specs, aux });
+    const c = { specs, aux: auxiliaires(lv0, specs), vue: dansVue(specs) };
+    if (!parAlt.has(a) || meilleur(c, parAlt.get(a))) parAlt.set(a, c);
   }
   if (!parAlt.size) return rejet('aucune solution minimale sans coïncidence');
   const deco = pointsDecoratifs(lv0, [...rt.solutions.values()]);
@@ -190,6 +198,7 @@ export function certifierFiche(f, { limiteMs }) {
     ...base, par: min, minCadre: rc.min, nbSolutions: rt.solutions.size, score: arrondi(m.score),
     refs: solutions.map(versRefs), view, lab: lettres(lv0, solutions), ghostAlt: [...parAlt.keys()].sort()[0],
     mesures: { premier: arrondi(m.premier), goulotLibre: arrondi(m.goulotLibre), auxMin: m.auxMin, occupation: arrondi(occupation(lv0, view)) },
+    refsHorsVue: [...parAlt.values()].filter((v) => !v.vue).length,
   };
   // vérifications de bout en bout sur le niveau construit
   const lv = depuisFiche(f, cert);

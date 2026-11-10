@@ -126,7 +126,7 @@ export const CERTIFICATS = {
        "c",
        0
       ],
-      "k": 0
+      "k": 1
      }
     },
     {
@@ -136,7 +136,7 @@ export const CERTIFICATS = {
        "c",
        0
       ],
-      "k": 0
+      "k": 1
      },
      "b": {
       "x": [
@@ -160,8 +160,8 @@ export const CERTIFICATS = {
     -0.38
    ],
    "R": [
-    0.71,
-    0.71
+    0.92,
+    0.38
    ]
   },
   "ghostAlt": 0,
@@ -170,7 +170,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.13,
    "auxMin": 2,
    "occupation": 0.57
-  }
+  },
+  "refsHorsVue": 0
  },
  "cercle-carre-inscrit": {
   "empreinte": "1032f90a6cd0d270",
@@ -220,7 +221,8 @@ export const CERTIFICATS = {
    "goulotLibre": 1,
    "auxMin": 0,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "cercle-centre": {
   "empreinte": "0415799893803ee8",
@@ -281,7 +283,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.1,
    "auxMin": 2,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "cercle-centre-b": {
   "empreinte": "957aa099c17950dd",
@@ -315,7 +318,7 @@ export const CERTIFICATS = {
        0,
        1
       ],
-      "k": 0
+      "k": 1
      }
     },
     {
@@ -350,8 +353,8 @@ export const CERTIFICATS = {
   ],
   "lab": {
    "R": [
-    0.38,
-    0.92
+    0.92,
+    0.38
    ],
    "S": [
     0,
@@ -364,7 +367,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.04,
    "auxMin": 3,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "cercle-equilateral-b": {
   "empreinte": "da5cd962db8e909c",
@@ -454,7 +458,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.5,
    "auxMin": 0,
    "occupation": 0.66
-  }
+  },
+  "refsHorsVue": 0
  },
  "cercle-hexagone": {
   "empreinte": "ce8e599227b2f496",
@@ -509,7 +514,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.24,
    "auxMin": 0,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "cercle-hexagone-b": {
   "empreinte": "58bd16c6b49128e2",
@@ -564,7 +570,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.2,
    "auxMin": 0,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "cercle-mediatrice-b": {
   "empreinte": "38398ed933a5bbfd",
@@ -620,7 +627,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.5,
    "auxMin": 0,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "cercle-milieu-arc": {
   "empreinte": "f8db97a3c7de4529",
@@ -685,7 +693,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.06,
    "auxMin": 2,
    "occupation": 0.64
-  }
+  },
+  "refsHorsVue": 0
  },
  "cercle-triangle-inscrit": {
   "empreinte": "d627614e5b978296",
@@ -735,7 +744,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.33,
    "auxMin": 1,
    "occupation": 0.66
-  }
+  },
+  "refsHorsVue": 0
  },
  "cercle-triangle-inscrit-b": {
   "empreinte": "7691a8c93dddc8d3",
@@ -785,7 +795,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.5,
    "auxMin": 1,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "cp-carre": {
   "empreinte": "073971682f9002f4",
@@ -853,7 +864,7 @@ export const CERTIFICATS = {
        0,
        1
       ],
-      "k": 0
+      "k": 1
      }
     },
     {
@@ -863,7 +874,7 @@ export const CERTIFICATS = {
        0,
        1
       ],
-      "k": 0
+      "k": 1
      },
      "b": {
       "x": [
@@ -887,8 +898,8 @@ export const CERTIFICATS = {
     0
    ],
    "B": [
-    0.71,
-    0.71
+    0.38,
+    0.92
    ]
   },
   "ghostAlt": 0,
@@ -897,7 +908,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.13,
    "auxMin": 2,
    "occupation": 0.5
-  }
+  },
+  "refsHorsVue": 0
  },
  "cp-carre-rc": {
   "empreinte": "cd807345697507d7",
@@ -930,13 +942,13 @@ export const CERTIFICATS = {
     },
     {
      "t": "line",
-     "a": "A",
+     "a": "B",
      "b": {
       "x": [
-       1,
+       0,
        2
       ],
-      "k": 1
+      "k": 0
      }
     },
     {
@@ -950,7 +962,7 @@ export const CERTIFICATS = {
      },
      "b": {
       "x": [
-       0,
+       1,
        3
       ],
       "k": 1
@@ -981,17 +993,6 @@ export const CERTIFICATS = {
     },
     {
      "t": "line",
-     "a": "A",
-     "b": {
-      "x": [
-       1,
-       2
-      ],
-      "k": 1
-     }
-    },
-    {
-     "t": "circle",
      "a": {
       "x": [
        0,
@@ -1002,7 +1003,24 @@ export const CERTIFICATS = {
      "b": {
       "x": [
        0,
+       1
+      ],
+      "k": 1
+     }
+    },
+    {
+     "t": "circle",
+     "a": {
+      "x": [
+       2,
        3
+      ],
+      "k": 1
+     },
+     "b": {
+      "x": [
+       0,
+       1
       ],
       "k": 0
      }
@@ -1017,12 +1035,12 @@ export const CERTIFICATS = {
   ],
   "lab": {
    "A": [
-    0.71,
-    0.71
+    -0.92,
+    -0.38
    ],
    "B": [
     0.71,
-    -0.71
+    0.71
    ]
   },
   "ghostAlt": 0,
@@ -1031,7 +1049,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.11,
    "auxMin": 3,
    "occupation": 0.43
-  }
+  },
+  "refsHorsVue": 0
  },
  "cp-losange": {
   "empreinte": "3e62e52a79faea26",
@@ -1090,7 +1109,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.53,
    "auxMin": 0,
    "occupation": 0.46
-  }
+  },
+  "refsHorsVue": 0
  },
  "cp-parallelogramme": {
   "empreinte": "f90341768185f44e",
@@ -1155,7 +1175,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.06,
    "auxMin": 1,
    "occupation": 0.45
-  }
+  },
+  "refsHorsVue": 0
  },
  "cp-partage-3": {
   "empreinte": "9c830be31198851f",
@@ -1232,7 +1253,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.17,
    "auxMin": 2,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "cp-partage-3-b": {
   "empreinte": "0548bbdab39549c4",
@@ -1319,7 +1341,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.02,
    "auxMin": 2,
    "occupation": 0.66
-  }
+  },
+  "refsHorsVue": 1
  },
  "cp-partage-4": {
   "empreinte": "9fb5e2293ab1523b",
@@ -1380,7 +1403,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.5,
    "auxMin": 0,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "cp-perpendiculaire": {
   "empreinte": "e215ec1e166aa87c",
@@ -1435,7 +1459,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.33,
    "auxMin": 1,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 1
  },
  "cp-report-b": {
   "empreinte": "3d90fbee961feea0",
@@ -1479,7 +1504,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.67,
    "auxMin": 0,
    "occupation": 0.35
-  }
+  },
+  "refsHorsVue": 0
  },
  "ct-bissectrice": {
   "empreinte": "da8334a8fd6df5dc",
@@ -1533,7 +1559,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.08,
    "auxMin": 1,
    "occupation": 0.68
-  }
+  },
+  "refsHorsVue": 0
  },
  "ct-centre-circonscrit": {
   "empreinte": "3c3c7ed057871304",
@@ -1581,7 +1608,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.25,
    "auxMin": 0,
    "occupation": 0.67
-  }
+  },
+  "refsHorsVue": 0
  },
  "ct-centre-gravite": {
   "empreinte": "790e7955afc323b3",
@@ -1651,7 +1679,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.04,
    "auxMin": 2,
    "occupation": 0.67
-  }
+  },
+  "refsHorsVue": 0
  },
  "ct-centre-inscrit": {
   "empreinte": "22b29bd2685d2df4",
@@ -1721,7 +1750,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.04,
    "auxMin": 2,
    "occupation": 0.67
-  }
+  },
+  "refsHorsVue": 0
  },
  "ct-cercle-circonscrit": {
   "empreinte": "aad7fec234879c20",
@@ -1780,7 +1810,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.06,
    "auxMin": 1,
    "occupation": 0.62
-  }
+  },
+  "refsHorsVue": 0
  },
  "ct-deux-tangentes": {
   "empreinte": "591b9c7152a57191",
@@ -1861,7 +1892,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.02,
    "auxMin": 1,
    "occupation": 0.69
-  }
+  },
+  "refsHorsVue": 0
  },
  "ct-orthocentre": {
   "empreinte": "dc5347d24cfe9c0a",
@@ -1931,7 +1963,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.04,
    "auxMin": 2,
    "occupation": 0.68
-  }
+  },
+  "refsHorsVue": 0
  },
  "ct-tangente": {
   "empreinte": "4284692341a762f9",
@@ -2035,7 +2068,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.02,
    "auxMin": 1,
    "occupation": 0.69
-  }
+  },
+  "refsHorsVue": 0
  },
  "ct-tangente-en": {
   "empreinte": "1b2d32f7e27d38f5",
@@ -2046,18 +2080,30 @@ export const CERTIFICATS = {
   "refs": [
    [
     {
-     "t": "line",
-     "a": "O",
-     "b": "R"
-    },
-    {
      "t": "circle",
      "a": "R",
      "b": "O"
     },
     {
      "t": "med",
-     "a": "O",
+     "a": "R",
+     "b": {
+      "x": [
+       "c",
+       0
+      ],
+      "k": 1
+     }
+    },
+    {
+     "t": "med",
+     "a": {
+      "x": [
+       "c",
+       0
+      ],
+      "k": 1
+     },
      "b": {
       "x": [
        0,
@@ -2076,12 +2122,12 @@ export const CERTIFICATS = {
   ],
   "lab": {
    "O": [
-    0,
-    -1
+    -1,
+    0
    ],
    "R": [
-    0,
-    -1
+    0.71,
+    -0.71
    ]
   },
   "ghostAlt": 0,
@@ -2090,7 +2136,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.46,
    "auxMin": 1,
    "occupation": 0.66
-  }
+  },
+  "refsHorsVue": 0
  },
  "ct-tangente-en-b": {
   "empreinte": "73cdf25367f7b0ab",
@@ -2162,7 +2209,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.16,
    "auxMin": 1,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "sm-angle-30": {
   "empreinte": "0f9923f95aabe80d",
@@ -2262,7 +2310,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.33,
    "auxMin": 1,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 2
  },
  "sm-angle-60": {
   "empreinte": "debeb29723ef610b",
@@ -2325,14 +2374,14 @@ export const CERTIFICATS = {
       ],
       "k": 0
      },
-     "b": "A"
+     "b": "B"
     },
     {
      "t": "line",
      "a": "P",
      "b": {
       "x": [
-       0,
+       1,
        2
       ],
       "k": 0
@@ -2366,7 +2415,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.15,
    "auxMin": 1,
    "occupation": 0.66
-  }
+  },
+  "refsHorsVue": 0
  },
  "sm-angle-75": {
   "empreinte": "66f7c92550fa350d",
@@ -2488,7 +2538,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.09,
    "auxMin": 2,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 2
  },
  "sm-bissectrice": {
   "empreinte": "3fd9bf5d36247cc5",
@@ -2558,7 +2609,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.02,
    "auxMin": 1,
    "occupation": 0.67
-  }
+  },
+  "refsHorsVue": 0
  },
  "sm-mediatrice": {
   "empreinte": "a88d316616cb2254",
@@ -2619,7 +2671,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.5,
    "auxMin": 0,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "sm-milieu": {
   "empreinte": "c76fc67b470a0d8b",
@@ -2680,7 +2733,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.5,
    "auxMin": 2,
    "occupation": 0.65
-  }
+  },
+  "refsHorsVue": 0
  },
  "sm-parallele": {
   "empreinte": "1fd065c9c0ba9407",
@@ -2691,24 +2745,30 @@ export const CERTIFICATS = {
   "refs": [
    [
     {
-     "t": "line",
-     "a": "A",
-     "b": "B"
-    },
-    {
      "t": "circle",
      "a": "B",
-     "b": "A"
+     "b": "C"
     },
     {
      "t": "circle",
+     "a": "A",
+     "b": {
+      "x": [
+       "c",
+       0
+      ],
+      "k": 0
+     }
+    },
+    {
+     "t": "line",
      "a": "C",
      "b": {
       "x": [
-       0,
-       1
+       "c",
+       0
       ],
-      "k": 1
+      "k": 0
      }
     },
     {
@@ -2732,15 +2792,15 @@ export const CERTIFICATS = {
   ],
   "lab": {
    "A": [
-    -0.71,
-    0.71
+    -0.92,
+    0.38
    ],
    "B": [
-    0,
-    1
+    0.71,
+    0.71
    ],
    "C": [
-    0.38,
+    -0.38,
     -0.92
    ]
   },
@@ -2750,7 +2810,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.05,
    "auxMin": 1,
    "occupation": 0.67
-  }
+  },
+  "refsHorsVue": 0
  },
  "sm-perpendiculaire": {
   "empreinte": "dc09cf3140ae96e7",
@@ -2809,7 +2870,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.14,
    "auxMin": 0,
    "occupation": 0.66
-  }
+  },
+  "refsHorsVue": 0
  },
  "sm-symetrique": {
   "empreinte": "dcb686abad1eb0ff",
@@ -2857,7 +2919,8 @@ export const CERTIFICATS = {
    "goulotLibre": 0.25,
    "auxMin": 0,
    "occupation": 0.61
-  }
+  },
+  "refsHorsVue": 0
  },
  "sm-thales": {
   "empreinte": "7090aa859afb32f5",
@@ -2922,6 +2985,7 @@ export const CERTIFICATS = {
    "goulotLibre": 0.04,
    "auxMin": 1,
    "occupation": 0.67
-  }
+  },
+  "refsHorsVue": 1
  }
 };
