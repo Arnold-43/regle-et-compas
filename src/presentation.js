@@ -220,7 +220,7 @@ const P = {
   },
   losange: {
     titre: () => 'Losange',
-    consigne: (b) => `Construis le losange de côté [${b.a.O}${b.a.A}] dont un autre côté suit la droite (${b.a.O}${b.a.B}).`,
+    consigne: (b) => `Construis le losange de côté [${b.a.O}${b.a.A}] dont un autre côté part de ${b.a.O} vers ${b.a.B}.`,
     sommets: (G, b, alt, alts) => [G[b.a.O], G[b.a.A], alts[0][1].p, alts[0][0].p],
     celebrer: (G, b, alt, alts) => polygone([G[b.a.O], G[b.a.A], alts[0][1].p, alts[0][0].p]),
   },
