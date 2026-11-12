@@ -191,11 +191,25 @@ export function scaleOf(G) {
   for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) m = Math.max(m, dist(ps[i], ps[j]));
   return m;
 }
-function perturb(G, amp, rand) {
+function perturb(G, amp, rand, contraintes) {
   const Q = {};
   for (const k of Object.keys(G)) {
     const a = rand() * Math.PI * 2, r = amp * (0.3 + 0.7 * rand());
     Q[k] = [G[k][0] + Math.cos(a) * r, G[k][1] + Math.sin(a) * r];
+  }
+  return contraindre(Q, contraintes);
+}
+/**
+ * Contraintes d'une figure de départ, gardées quand on la déforme : {S: {surCercle: ['O', 'R']}} replace S
+ * sur le cercle de centre O passant par R (un point « sur le cercle » doit y rester).
+ */
+export function contraindre(Q, contraintes) {
+  if (!contraintes) return Q;
+  for (const [id, c] of Object.entries(contraintes)) {
+    if (c.surCercle) {
+      const O = Q[c.surCercle[0]], r = dist(O, Q[c.surCercle[1]]), u = unit(sub(Q[id], O));
+      Q[id] = add(O, mul(u, r));
+    }
   }
   return Q;
 }
@@ -209,7 +223,7 @@ export function verify(level, specs, seed = 20261107) {
   let valid = 0, tries = 0;
   while (valid < 6 && tries < 40) {
     tries++;
-    const Q = perturb(level.pts, amp, rand);
+    const Q = perturb(level.pts, amp, rand, level.contraintes);
     const b = build(level, Q, specs);
     if (!b.ok) continue;
     valid++;
@@ -244,6 +258,8 @@ function resolveRef(level, G, stepG, r) {
   if (r.far) { const q = G[r.far]; return by((p) => -dist(p, q)); }
   return xs[0];
 }
+/** Position d'un point désigné comme dans une référence ('A' ou intersection {x:[i, j], …}). */
+export const resoudrePoint = (level, G, stepG, r) => resolveRef(level, G, stepG, r);
 export function evalRef(level, G, ref) {
   const stepG = [], out = [];
   for (const st of ref) {
@@ -294,16 +310,36 @@ function directStep(b, t, tools) {
   return null;
 }
 
+/** Prochain tracé d'une référence depuis la figure b : {step, remaining, done}, ou null (finie ou injouable ici). */
+function suiteRef(level, b, ref) {
+  if (ref.some((s) => !level.tools.includes(s.t))) return null;
+  const ev = evalRef(level, level.pts, ref);
+  if (!ev) return null;
+  const flags = ev.map((st) => hasObj(b, st.g));
+  const idx = flags.indexOf(false);
+  if (idx < 0) return null;
+  const st = ev[idx];
+  const pa = pointAt(b, st.a), pb = pointAt(b, st.b);
+  if (!pa || !pb) return null;
+  const done = flags.filter(Boolean).length;
+  return { step: { t: st.t, a: pa.id, b: pb.id, g: st.g }, remaining: flags.length - done, done };
+}
+
 /**
  * Indice calculé depuis la figure du joueur.
  * @returns {kind:'step', step:{t,a,b,g}, remaining} | {kind:'stuck', movesLeft} | null
  */
-export function hint(level, specs) {
+export function hint(level, specs, opts = {}) {
   const G = level.pts, tools = level.tools;
   const b = build(level, G, specs);
   if (!b.ok) return null;
   const movesLeft = level.par + level.extra - specs.length;
   const alts = level.target(G);
+  // 0. La solution épinglée (celle de l'idée et de l'explication), tant qu'elle reste atteignable.
+  if (opts.prefere !== undefined && opts.prefere >= 0 && level.refs[opts.prefere]) {
+    const suite = suiteRef(level, b, level.refs[opts.prefere]);
+    if (suite && suite.remaining <= movesLeft) return { kind: 'step', step: suite.step, remaining: suite.remaining, refIndex: opts.prefere };
+  }
   // 1. Un seul tracé manque ? On le donne directement, même hors des solutions de référence.
   for (const alt of alts) {
     const missing = alt.filter((t) => !present(b, t));
@@ -314,23 +350,11 @@ export function hint(level, specs) {
   }
   // 2. Sinon, la référence qui recoupe le plus ce que le joueur a déjà tracé.
   let best = null;
-  for (const ref of level.refs) {
-    if (ref.some((s) => !tools.includes(s.t))) continue;
-    const ev = evalRef(level, G, ref);
-    if (!ev) continue;
-    const flags = ev.map((st) => hasObj(b, st.g));
-    const idx = flags.indexOf(false);
-    if (idx < 0) continue;
-    const st = ev[idx];
-    const pa = pointAt(b, st.a), pb = pointAt(b, st.b);
-    if (!pa || !pb) continue;
-    const done = flags.filter(Boolean).length;
-    const remaining = flags.length - done;
-    if (!best || done > best.done || (done === best.done && remaining < best.remaining)) {
-      best = { step: { t: st.t, a: pa.id, b: pb.id, g: st.g }, remaining, done };
-    }
-  }
+  level.refs.forEach((ref, i) => {
+    const s = suiteRef(level, b, ref);
+    if (s && (!best || s.done > best.done || (s.done === best.done && s.remaining < best.remaining))) best = { ...s, refIndex: i };
+  });
   if (!best) return null;
   if (best.remaining > movesLeft) return { kind: 'stuck', movesLeft };
-  return { kind: 'step', step: best.step, remaining: best.remaining };
+  return { kind: 'step', step: best.step, remaining: best.remaining, refIndex: best.refIndex };
 }

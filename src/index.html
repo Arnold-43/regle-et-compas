@@ -35,6 +35,11 @@
 
   <div class="stage" id="stage">
     <canvas id="cv" role="img" aria-label="Feuille de construction"></canvas>
+    <div class="whycard" id="whycard" hidden role="status" aria-live="polite">
+      <div class="hk" id="whyKicker">Pourquoi ?</div>
+      <div id="whyText"></div>
+      <div class="whynext" id="whyNext">Touche pour continuer</div>
+    </div>
     <div class="hintcard" id="hintcard" hidden>
       <div class="hk" id="hintKicker">Indice</div>
       <div id="hintText"></div>
@@ -50,7 +55,7 @@
 
   <div class="status">
     <div class="par" id="par"></div>
-    <button class="hintbtn" id="hintBtn">Indice <span class="pips" aria-hidden="true"><i></i><i></i><i></i></span></button>
+    <button class="hintbtn" id="hintBtn">Indice <span class="pips" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>
   </div>
 
   <nav class="tray" aria-label="Instruments">
@@ -88,6 +93,7 @@
     <div class="row">
       <button class="primary" id="nextBtn">Niveau suivant</button>
       <button class="secondary" id="replayBtn">Rejouer</button>
+      <button class="secondary" id="whyBtn" hidden>Pourquoi ?</button>
     </div>
   </section>
 </div>

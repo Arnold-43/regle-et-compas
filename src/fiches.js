@@ -34,10 +34,10 @@ export const FIGURES = {
   'cercle-seul-b': { pts: { O: [10, -5], R: [-31, -37] }, given: [c('O', 'R')] },
   'cercle-seul-c': { pts: { O: [-6, -4], R: [41, 19] }, given: [c('O', 'R')] },
   // cercle de centre O, et deux points R et S dessus
-  'cercle-arc': { pts: { O: [4, 6], R: [-38, -22], S: rot([-38, -22], [4, 6], 104) }, given: [c('O', 'R')] },
+  'cercle-arc': { pts: { O: [4, 6], R: [-38, -22], S: rot([-38, -22], [4, 6], 104) }, given: [c('O', 'R')], contraintes: { S: { surCercle: ['O', 'R'] } } },
   // cercle dont le centre est effacé, deux points dessus
-  'cercle-cache': { pts: { O: [6, 8], R: [-40, 30], S: rot([-40, 30], [6, 8], 137) }, hidden: ['O'], given: [c('O', 'R')] },
-  'cercle-cache-b': { pts: { O: [-4, -6], R: [38, 28], S: rot([38, 28], [-4, -6], -118) }, hidden: ['O'], given: [c('O', 'R')] },
+  'cercle-cache': { pts: { O: [6, 8], R: [-40, 30], S: rot([-40, 30], [6, 8], 137) }, hidden: ['O'], given: [c('O', 'R')], contraintes: { S: { surCercle: ['O', 'R'] } } },
+  'cercle-cache-b': { pts: { O: [-4, -6], R: [38, 28], S: rot([38, 28], [-4, -6], -118) }, hidden: ['O'], given: [c('O', 'R')], contraintes: { S: { surCercle: ['O', 'R'] } } },
   // segments
   'segment': { pts: { A: [-52, 28], B: [48, 36] }, given: [s('A', 'B')] },
   'segment-b': { pts: { A: [-46, -8], B: [56, -30] }, given: [s('A', 'B')] },
@@ -64,7 +64,7 @@ export const FICHES = [
   { id: 'cercle-triangle-inscrit', chapitre: 'cercle', figure: 'cercle-seul', objectif: { id: 'triangle-inscrit', args: { c: { O: 'O', R: 'R' } } }, outils: ['line', 'circle', 'med'], apres: ['cercle-hexagone'] },
   { id: 'cercle-carre-inscrit', chapitre: 'cercle', figure: 'cercle-seul-b', objectif: { id: 'carre-inscrit', args: { c: { O: 'O', R: 'R' } } }, outils: ['line', 'circle', 'med'], apres: ['cercle-mediatrice-b'] },
   { id: 'cercle-hexagone-b', chapitre: 'cercle', figure: 'cercle-seul-b', objectif: { id: 'hexagone', args: { c: { O: 'O', R: 'R' } } }, outils: ['line', 'circle'], apres: ['cercle-hexagone'] },
-  { id: 'cercle-milieu-arc', chapitre: 'cercle', figure: 'cercle-arc', objectif: { id: 'milieu-arc', args: { c: { O: 'O', R: 'R' }, S: 'S' } }, outils: ['line', 'circle', 'med'], apres: ['cercle-mediatrice-b'] },
+  { id: 'cercle-milieu-arc', chapitre: 'cercle', figure: 'cercle-arc', objectif: { id: 'milieu-arc', args: { c: { O: 'O', R: 'R' }, S: 'S' } }, outils: ['line', 'circle'], apres: ['cercle-mediatrice-b'] },
   { id: 'cercle-centre', chapitre: 'cercle', figure: 'cercle-cache', objectif: { id: 'centre', args: { c: { O: 'O', R: 'R' } } }, outils: ['line', 'circle', 'med'], apres: ['cercle-mediatrice-b'] },
   { id: 'cercle-carre', chapitre: 'cercle', figure: 'cercle-seul-c', objectif: { id: 'carre', args: { s: ['O', 'R'] } }, outils: ['line', 'circle', 'med'], apres: ['cercle-carre-inscrit'] },
   { id: 'cercle-triangle-inscrit-b', chapitre: 'cercle', figure: 'cercle-seul-c', objectif: { id: 'triangle-inscrit', args: { c: { O: 'O', R: 'R' } } }, outils: ['line', 'circle'], apres: ['cercle-triangle-inscrit'] },
@@ -112,7 +112,7 @@ export function depuisFiche(f, cert) {
     id: f.id, chapitre: f.chapitre, defi: !!f.defi,
     title: pr.titre(b), goal: pr.consigne(b, fig),
     tools: f.outils, extra: f.extra ?? 3,
-    pts: fig.pts, given: fig.given, hidden: fig.hidden,
+    pts: fig.pts, given: fig.given, hidden: fig.hidden, contraintes: fig.contraintes,
     objectif: f.objectif,
     par: cert ? cert.par : undefined,
     refs: cert ? cert.refs : [],

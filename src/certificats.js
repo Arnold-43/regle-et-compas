@@ -225,15 +225,15 @@ export const CERTIFICATS = {
   "refsHorsVue": 0
  },
  "cercle-centre": {
-  "empreinte": "0415799893803ee8",
-  "par": 3,
-  "minCadre": 3,
-  "nbSolutions": 7,
-  "score": 6.82,
+  "empreinte": "b2c446a6778d3f16",
+  "par": 2,
+  "minCadre": 2,
+  "nbSolutions": 5,
+  "score": 3.75,
   "refs": [
    [
     {
-     "t": "circle",
+     "t": "med",
      "a": "R",
      "b": "S"
     },
@@ -244,17 +244,6 @@ export const CERTIFICATS = {
       "x": [
        "c",
        0
-      ],
-      "k": 1
-     }
-    },
-    {
-     "t": "med",
-     "a": "R",
-     "b": {
-      "x": [
-       "c",
-       1
       ],
       "k": 0
      }
@@ -279,19 +268,19 @@ export const CERTIFICATS = {
   },
   "ghostAlt": 0,
   "mesures": {
-   "premier": 0.5,
-   "goulotLibre": 0.1,
-   "auxMin": 2,
+   "premier": 0.25,
+   "goulotLibre": 0.25,
+   "auxMin": 1,
    "occupation": 0.65
   },
   "refsHorsVue": 0
  },
  "cercle-centre-b": {
-  "empreinte": "957aa099c17950dd",
+  "empreinte": "1f9f922b3c0eaa6b",
   "par": 5,
   "minCadre": 5,
-  "nbSolutions": 25,
-  "score": 10.94,
+  "nbSolutions": 81,
+  "score": 10.43,
   "refs": [
    [
     {
@@ -309,9 +298,9 @@ export const CERTIFICATS = {
      "a": {
       "x": [
        "c",
-       1
+       0
       ],
-      "k": 1
+      "k": 0
      },
      "b": {
       "x": [
@@ -323,7 +312,7 @@ export const CERTIFICATS = {
     },
     {
      "t": "circle",
-     "a": "R",
+     "a": "S",
      "b": {
       "x": [
        "c",
@@ -341,7 +330,7 @@ export const CERTIFICATS = {
       ],
       "k": 1
      },
-     "b": "R"
+     "b": "S"
     }
    ]
   ],
@@ -353,18 +342,18 @@ export const CERTIFICATS = {
   ],
   "lab": {
    "R": [
-    0.92,
-    0.38
+    0.71,
+    0.71
    ],
    "S": [
-    0,
-    -1
+    0.38,
+    -0.92
    ]
   },
   "ghostAlt": 0,
   "mesures": {
    "premier": 0.67,
-   "goulotLibre": 0.04,
+   "goulotLibre": 0.06,
    "auxMin": 3,
    "occupation": 0.65
   },
@@ -631,32 +620,26 @@ export const CERTIFICATS = {
   "refsHorsVue": 0
  },
  "cercle-milieu-arc": {
-  "empreinte": "f8db97a3c7de4529",
+  "empreinte": "bb4ad4d7766f125b",
   "par": 3,
   "minCadre": 3,
-  "nbSolutions": 1,
-  "score": 8.67,
+  "nbSolutions": 4,
+  "score": 6.6,
   "refs": [
    [
     {
-     "t": "line",
-     "a": "O",
-     "b": "R"
+     "t": "circle",
+     "a": "R",
+     "b": "O"
     },
     {
      "t": "circle",
-     "a": {
-      "x": [
-       "c",
-       0
-      ],
-      "k": 0
-     },
-     "b": "S"
+     "a": "S",
+     "b": "O"
     },
     {
-     "t": "med",
-     "a": "S",
+     "t": "line",
+     "a": "O",
      "b": {
       "x": [
        0,
@@ -675,23 +658,23 @@ export const CERTIFICATS = {
   ],
   "lab": {
    "O": [
-    -0.38,
-    0.92
+    1,
+    0
    ],
    "R": [
-    0.92,
+    -0.92,
     -0.38
    ],
    "S": [
-    0.38,
-    -0.92
+    0.71,
+    -0.71
    ]
   },
   "ghostAlt": 0,
   "mesures": {
-   "premier": 0.1,
-   "goulotLibre": 0.06,
-   "auxMin": 2,
+   "premier": 0.86,
+   "goulotLibre": 0.07,
+   "auxMin": 1,
    "occupation": 0.64
   },
   "refsHorsVue": 0

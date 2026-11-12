@@ -6,6 +6,8 @@ import * as RC from './engine.js';
 import { LEVELS } from './levels.js';
 import { CHAPITRES, ORDRE, niveauxDe, niveauOuvert, chapitreOuvert, premierAJouer, position, chapitreDe, avancement } from './chapters.js';
 import { vuePour, cadrageEnglobant, estVisible, flecheBord, interpole, vueMontrant } from './vue.js';
+import { EXPLICATIONS } from './explications.js';
+import { figureExplication } from './faits.js';
 
 // Niveaux dans l'ordre des chapitres (écran des niveaux, « Niveau suivant »).
 const NIVEAUX = ORDRE.map((id) => LEVELS.find((l) => l.id === id));
@@ -270,7 +272,7 @@ function scene(c, v, now) {
   }
 
   let cp = 0;
-  const cel = S.solved ? L.celebrate(G, S.winAlt) : [];
+  const cel = S.solved && !S.pq ? L.celebrate(G, S.winAlt) : [];
   if (S.solved) {
     cp = DUR ? clamp((now - S.winAt) / 650, 0, 1) : 1;
     if (cp < 1) anim = true;
@@ -302,12 +304,13 @@ function scene(c, v, now) {
   for (const o of B.objs) if (o.given) { pathGeom(c, v, o.g, 1); c.stroke(); }
 
   // indice niveau 3 : le tracé à faire
-  if (S.hint && S.hint.show && S.hint.lvl >= 3) {
+  if (S.hint && S.hint.show && S.hint.lvl >= 4) {
     c.save(); c.setLineDash([7, 6]); c.strokeStyle = col.red; c.lineWidth = 2;
     pathGeom(c, v, S.hint.step.g, 1); c.stroke(); c.restore();
   }
 
   for (const sh of cel) if (!sh.poly && !sh.wedge) drawShape(c, v, sh, cp);
+  if (S.pq) anim = dessinePourquoi(c, v, now) || anim;
 
   // aperçu du tracé en cours
   const cand = press ? (press.mode === 'select' ? press.cand : null) : S.hover;
@@ -329,7 +332,7 @@ function scene(c, v, now) {
     c.lineWidth = 1.25; c.strokeStyle = col.graphite; c.stroke();
   }
   // points construits hors de l'écran : petite flèche sur le bord, de leur côté
-  const indices = S.hint && S.hint.show ? [S.hint.step.a, S.hint.step.b] : [];
+  const indices = S.hint && S.hint.show && S.hint.lvl >= 2 ? [S.hint.step.a, S.hint.step.b] : [];
   for (const p of B.points) {
     const f = flecheBord(v, p.p, W, H);
     if (!f || (p.given && !indices.includes(p.id))) continue;
@@ -363,15 +366,15 @@ function scene(c, v, now) {
     c.strokeStyle = col.yellow; c.lineWidth = 2.25;
     c.beginPath(); c.arc(s[0], s[1], 12, 0, Math.PI * 2); c.stroke();
   }
-  // indice : points cerclés de rouge
-  if (S.hint && S.hint.show) {
+  // indice : points cerclés de rouge (à partir du palier 2 ; le palier 1 est l'idée)
+  if (S.hint && S.hint.show && S.hint.lvl >= 2) {
     const st = S.hint.step;
     [[st.a, st.t === 'circle'], [st.b, false]].forEach(([id, isCenter]) => {
       const p = B.byId.get(id); if (!p) return;
       const s = T(v, p.p);
       c.strokeStyle = col.red; c.lineWidth = 2;
       c.beginPath(); c.arc(s[0], s[1], 13, 0, Math.PI * 2); c.stroke();
-      if (isCenter && S.hint.lvl >= 2) {
+      if (isCenter && S.hint.lvl >= 3) {
         c.fillStyle = col.red;
         c.beginPath(); c.arc(s[0], s[1], 6, 0, Math.PI * 2); c.fill();
       }
@@ -410,6 +413,7 @@ function pick(x, y, rad) {
   return best;
 }
 cv.addEventListener('pointerdown', (e) => {
+  if (S.pq) { e.preventDefault(); suitePourquoi(); return; }
   vueAnim = null;
   try { cv.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
   const [x, y] = pos(e);
@@ -545,8 +549,9 @@ function win(alt) {
       : `Le minimum est de ${L.par} coups. Rejoue pour décrocher l’étoile.`;
   $('sheetUnlock').hidden = !(L.unlocks === 'med' && first);
   $('nextBtn').textContent = hasNext() ? 'Niveau suivant' : 'Voir les niveaux';
+  $('whyBtn').hidden = !(explication() && explication().pourquoi);
   updateUI(); render();
-  setTimeout(() => { if (S.solved) openSheet(); }, DUR ? 950 : 0);
+  setTimeout(() => { if (S.solved && !S.pq) openSheet(); }, DUR ? 950 : 0);
 }
 
 function undo() {
@@ -565,20 +570,28 @@ function wipe() {
 // ---------- indices ----------
 function hintText(h) {
   const t = h.step.t, r = h.remaining;
-  if (h.lvl === 1) {
+  if (h.lvl === 1) return explication().idee.texte;
+  if (h.lvl === 2) {
     return 'La prochaine étape s’appuie sur les deux points cerclés de rouge. ' +
       (r > 1 ? `Encore ${r} tracés jusqu’à la solution.` : 'Un seul tracé te sépare de la solution.');
   }
-  if (h.lvl === 2) {
+  if (h.lvl === 3) {
     if (t === 'circle') return 'Prends le Cercle : centre sur le point plein, passant par l’autre point cerclé.';
     if (t === 'line') return 'Prends la Droite et relie les deux points cerclés.';
     return 'Prends la Médiatrice entre les deux points cerclés.';
   }
   return 'Voici le tracé, en pointillés rouges. À toi de le faire.';
 }
+/** Explication du niveau (idée, « Pourquoi ? ») et index de sa solution épinglée dans les refs. */
+const explication = () => EXPLICATIONS[lv().id] || null;
+function refEpinglee() {
+  const ex = explication();
+  return ex ? lv().refs.findIndex((r) => JSON.stringify(r) === JSON.stringify(ex.ref)) : -1;
+}
 function onHint() {
-  if (S.solved) return;
-  const h = RC.hint(lv(), S.specs);
+  if (S.solved || S.pq) return;
+  const epingle = refEpinglee();
+  const h = RC.hint(lv(), S.specs, { prefere: epingle });
   if (!h) { showHint('Indice', 'Rien à proposer depuis cette figure. Efface-la pour repartir de zéro.'); return; }
   if (h.kind === 'stuck') {
     S.hint = null;
@@ -588,14 +601,78 @@ function onHint() {
       : 'Plus de coups. Annule tes derniers tracés pour reprendre une autre piste.');
     updateUI(); render(); return;
   }
+  // Paliers : 1 idée (gratuite, une fois par partie, si l'indice suit la solution épinglée),
+  // 2 points utiles, 3 outil, 4 tracé. Les paliers 2 à 4 coûtent l'étoile.
   const key = `${h.step.t}|${h.step.a}|${h.step.b}`;
-  const lvl = S.hint && S.hint.key === key ? Math.min(3, S.hint.lvl + 1) : 1;
+  const ideeDispo = !!(explication() && explication().idee) && h.refIndex === epingle && epingle >= 0;
+  const lvl = S.hint && S.hint.key === key ? Math.min(4, S.hint.lvl + 1) : (ideeDispo && !S.ideeVue ? 1 : 2);
   S.hint = { key, lvl, step: h.step, remaining: h.remaining, show: true };
-  S.hintUsed = true; S.sel = [];
-  showHint(`Indice ${lvl} sur 3`, hintText(S.hint));
-  montrer([h.step.a, h.step.b].map((id) => B.byId.get(id)).filter(Boolean).map((q) => q.p)); // après la carte : on la mesure
+  S.sel = [];
+  if (lvl === 1) S.ideeVue = true; else S.hintUsed = true;
+  showHint(lvl === 1 ? 'Idée · indice 1 sur 4' : `Indice ${lvl} sur 4`, hintText(S.hint));
+  if (lvl >= 2) montrer([h.step.a, h.step.b].map((id) => B.byId.get(id)).filter(Boolean).map((q) => q.p)); // après la carte : on la mesure
   updateUI(); render();
 }
+// ---------- « Pourquoi ? » : rejoue la solution épinglée, puis l'explique, une étape par tape ----------
+const nomAffiche = (n) => n.replace(/2$/, '′');
+const COULEURS = { red: 'red', blue: 'blue', yellow: 'yellow' };
+function memeConstruction(a, b) {
+  const L = lv(), ba = RC.build(L, L.pts, a), bb = RC.build(L, L.pts, b);
+  const objs = (x) => x.objs.filter((o) => !o.given).map((o) => o.g);
+  const [oa, ob] = [objs(ba), objs(bb)];
+  return oa.length === ob.length && ob.every((g) => oa.some((h) => RC.sameGeom(g, h)));
+}
+function lancerPourquoi() {
+  const L = lv(), ex = explication();
+  if (!ex || !ex.pourquoi) return;
+  const specs = RC.refToSpecs(L, ex.ref);
+  if (!specs) return;
+  const t0 = performance.now();
+  S.pq = { etape: 0, specsJ: S.specs, bornJ: S.born, differ: !memeConstruction(S.specs, specs), fig: figureExplication(L, L.pts, ex), t0: t0 + specs.length * 380 };
+  S.specs = specs; S.born = specs.map((_, i) => t0 + i * 380);
+  closeSheet(); hideHint(); rebuild(); afficheEtape(); updateUI(); render();
+}
+function afficheEtape() {
+  const ex = explication(), e = ex.pourquoi[S.pq.etape], n = ex.pourquoi.length;
+  $('whyKicker').textContent = `Pourquoi ? · ${S.pq.etape + 1}/${n}`;
+  $('whyText').textContent = (S.pq.etape === 0 && S.pq.differ ? 'Voici une façon de le voir. ' : '') + e.texte;
+  $('whyNext').textContent = S.pq.etape + 1 < n ? 'Touche pour continuer' : 'Touche pour revenir';
+  $('whycard').hidden = false;
+}
+function suitePourquoi() {
+  const n = explication().pourquoi.length;
+  if (S.pq.etape + 1 < n) { S.pq.etape++; afficheEtape(); render(); return; }
+  // fin : on rend sa construction au joueur
+  S.specs = S.pq.specsJ; S.born = S.pq.specsJ.map(() => 0); S.pq = null;
+  $('whycard').hidden = true; rebuild(); updateUI(); render(); openSheet();
+}
+function dessinePourquoi(c, v, now) {
+  const ex = explication(), P = S.pq.fig.P, e = ex.pourquoi[S.pq.etape];
+  const p = DUR ? clamp((now - S.pq.t0) / 500, 0, 1) : 1; // les formes apparaissent après la rejouée
+  const u = (a, o) => { const d = RC.sub(P[a], P[o]), l = Math.hypot(d[0], d[1]); return [d[0] / l, d[1] / l]; };
+  const formes = e.formes.map((f) => {
+    if (f.seg) return { seg: [P[f.seg[0]], P[f.seg[1]]], stroke: COULEURS[f.couleur] || 'red' };
+    if (f.poly) return { poly: f.poly.map((n) => P[n]), fill: COULEURS[f.couleur] || 'yellow' };
+    if (f.angle) return { wedge: [P[f.angle[1]], u(f.angle[0], f.angle[1]), u(f.angle[2], f.angle[1])], fill: COULEURS[f.couleur] || 'yellow', r: 30 };
+    if (f.droit) return { right: [P[f.droit[1]], u(f.droit[0], f.droit[1]), u(f.droit[2], f.droit[1])] };
+    if (f.point) return { dot: P[f.point], fill: COULEURS[f.couleur] || 'red' };
+    return null;
+  }).filter(Boolean);
+  for (const sh of formes) if (sh.poly || sh.wedge) drawShape(c, v, sh, p);
+  for (const sh of formes) if (!sh.poly && !sh.wedge) drawShape(c, v, sh, p);
+  // lettres des points nommés de cette étape (les points construits n'en ont pas d'ordinaire)
+  const noms = new Set(e.formes.flatMap((f) => f.seg || f.poly || f.angle || f.droit || (f.point ? [f.point] : [])));
+  c.save(); c.globalAlpha = p; c.fillStyle = col.ink; c.font = 'italic 16px "Libre Caslon Text", Georgia, serif';
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  for (const n of noms) {
+    if (lv().pts[n] && !(lv().hidden || []).includes(n)) continue; // déjà étiqueté
+    const s2 = T(v, P[n]);
+    c.fillText(nomAffiche(n), s2[0] + 13, s2[1] - 13);
+  }
+  c.restore();
+  return p < 1;
+}
+
 function showHint(kicker, text) { $('hintKicker').textContent = kicker; $('hintText').textContent = text; $('hintcard').hidden = false; }
 function hideHint() { $('hintcard').hidden = true; }
 
@@ -625,11 +702,11 @@ function updateUI() {
       b.setAttribute('aria-label', sans ? `Médiatrice : ${sans}` : 'Médiatrice');
     }
     b.setAttribute('aria-pressed', S.tool === t ? 'true' : 'false');
-    b.classList.toggle('cue', !!(S.hint && S.hint.show && S.hint.lvl >= 2 && S.hint.step.t === t));
+    b.classList.toggle('cue', !!(S.hint && S.hint.show && S.hint.lvl >= 3 && S.hint.step.t === t));
     b.classList.toggle('off', avail && (S.solved || outOfMoves()));
   });
-  $('undoBtn').disabled = !S.specs.length;
-  $('resetBtn').disabled = !S.specs.length;
+  $('undoBtn').disabled = !S.specs.length || !!S.pq;
+  $('resetBtn').disabled = !S.specs.length || !!S.pq;
   $('hintBtn').disabled = S.solved;
   const lvl = S.hint ? S.hint.lvl : 0;
   document.querySelectorAll('.pips i').forEach((el, i) => el.classList.toggle('on', i < lvl));
@@ -643,7 +720,7 @@ function closeSheet() { const s = $('sheet'); s.classList.remove('in'); s.hidden
 
 function loadLevel(i) {
   S.li = i; S.specs = []; S.born = []; S.tool = null; S.sel = []; S.hint = null;
-  S.hintUsed = false; S.solved = false; S.hover = null;
+  S.hintUsed = false; S.ideeVue = false; S.solved = false; S.hover = null; S.pq = null; $('whycard').hidden = true;
   closeSheet(); hideHint();
   rebuild(); fitView(); updateUI(); render();
   if (i === 0 && !prog.seenHelp) {
@@ -710,6 +787,7 @@ function openLevels() {
 function closeLevels() { $('levels').hidden = true; }
 
 document.querySelectorAll('.tool').forEach((b) => b.addEventListener('click', () => {
+  if (S.pq) return;
   const t = b.dataset.tool, L = lv();
   if (!L.tools.includes(t)) {
     toast(sansMed(L) || 'La Médiatrice se gagne en réussissant la proposition I.10.');
@@ -745,6 +823,8 @@ $('nextBtn').addEventListener('click', () => {
   else openLevels();
 });
 $('replayBtn').addEventListener('click', () => loadLevel(S.li));
+$('whyBtn').addEventListener('click', lancerPourquoi);
+$('whycard').addEventListener('click', () => { if (S.pq) suitePourquoi(); });
 let tapes = 0, tapeT = 0;
 $('version').addEventListener('click', () => {
   const now = Date.now();
@@ -796,6 +876,10 @@ if (/[?&]debug\b/.test(location.search)) {
     }),
     aller: (id) => { modeTest = true; loadLevel(ORDRE.indexOf(id)); },
     indice: () => onHint(),
+    pourquoi: () => lancerPourquoi(),
+    suite: () => suitePourquoi(),
+    texteIndice: () => ({ kicker: $('hintKicker').textContent, texte: $('hintText').textContent, carte: !$('hintcard').hidden, hintUsed: S.hintUsed }),
+    textePourquoi: () => ({ kicker: $('whyKicker').textContent, texte: $('whyText').textContent, actif: !!S.pq }),
     jouer: (t, a, b) => { S.tool = t; S.sel = []; onPoint(B.byId.get(a)); onPoint(B.byId.get(b)); },
   };
 }

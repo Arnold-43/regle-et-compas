@@ -30,6 +30,8 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 | `src/engine.js` | Moteur géométrique **pur** (aucun DOM, tourne sous Node) : objets, intersections, rejeu d'une construction, vérification, indices. |
 | `src/levels.js` | Les 10 niveaux écrits à la main (ch. 1 et 2, comportement figé) + les niveaux tirés des fiches. |
 | `src/fiches.js` | Niveaux en fiches de données (chapitre, figure, entrée du catalogue, outils, marge) et figures de départ du jeu. |
+| `src/explications.js` | Idée de chaque niveau et « Pourquoi ? » (prototype sur 6 niveaux), rattachés à une solution de référence épinglée ; chaque phrase déclare ses faits. Pur. |
+| `src/faits.js` | Faits géométriques (segments égaux, angle de N°, angle droit, alignés, sur un cercle…) : figure nommée d'une explication et vérification numérique. Pur. |
 | `src/presentation.js` | Titre, consigne, objectif en pointillés et célébration façon Byrne de chaque entrée du catalogue. Pur. |
 | `src/certificats.js` | **Écrit par `npm run certify`** : empreinte, minimum, solutions, score, refs, cadrage et lettres de chaque niveau. |
 | `src/chapters.js` | Chapitres (une idée chacun, défi optionnel) et règles d'ouverture. Pur, testé dans `tests/chapters.test.js`. |
@@ -48,6 +50,9 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 | `tools/garde-fous.js` | Garde-fous de contenu des chapitres (cibles répétées, défi le plus dur, prérequis) ; `node tools/garde-fous.js`. |
 | `tools/occupation.js` | Place de la figure de départ à l'écran (téléphone de référence 390 × 844) ; cible ≥ 60 %. |
 | `tests/complet/` | Vérification exhaustive (minimums, solutions, cadre), lancée par `.github/workflows/verification-complete.yml`. |
+| `tools/idees.js` | Vérifie les faits des idées et explications sur des figures déformées ; `--doc` écrit `docs/idees.md`. |
+| `tests/explications.test.js` | Garde-fou des idées : faits vrais (un fait faussé doit échouer), une idée par niveau, points nommés visibles, longueur. |
+| `docs/idees.md` | Toutes les idées et explications, avec leurs faits vérifiés (généré). |
 | `tests/levels.test.js` | Garde-fou de chaque niveau. |
 | `tests/chapters.test.js` | Garde-fou des chapitres et de la progression enregistrée (aucune perte en changeant de version). |
 | `docs/chapitres.md` | Carte des chapitres et candidats de niveaux retenus (avec leurs mesures). |
@@ -59,7 +64,9 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 - Une construction = une liste de coups `specs` : `{t:'line'|'circle'|'med', a, b}` (cercle : centre `a`, passant par `b`).
 - `build(level, G, specs)` rejoue la construction depuis les points de départ `G`. Chaque intersection reçoit un id stable `x:<obj1>:<obj2>:<k>` ; l'indice `k` reste le même quand on déforme la figure.
 - `verify(level, specs)` rejoue la construction sur des points de départ légèrement déplacés : une figure juste « par coïncidence » est refusée.
-- `hint(level, specs)` calcule l'indice **depuis la figure du joueur** : d'abord « un seul tracé manque ? », sinon la solution de référence qui recoupe le plus ce qui est déjà tracé ; signale une impasse si les coups restants ne suffisent plus.
+- `hint(level, specs)` calcule l'indice **depuis la figure du joueur** : d'abord « un seul tracé manque ? », sinon la solution de référence qui recoupe le plus ce qui est déjà tracé ; signale une impasse si les coups restants ne suffisent plus. `opts.prefere` : suivre d'abord cette ref (la ref épinglée de l'idée) tant qu'elle reste faisable ; le résultat donne `refIndex`.
+- `contraintes` (figure) : points de départ liés à un objet donné (ex. `S: {surCercle: ['O', 'R']}`) ; `verify` les respecte en déformant la figure.
+- Idées et « Pourquoi ? » (`src/explications.js`) : `ref` épinglée (gardée en tête des refs par `npm run certify`), `pts` nommés depuis ses intersections, `idee: {texte, faits}`, `pourquoi: [{texte, faits, formes}]`. Les faits sont vérifiés sur la figure et sur des figures déformées où la ref épinglée résout encore (au moins 4).
 - Les solutions de référence (`refs`) désignent les intersections par `{x:[i, j], pick}` avec `pick:'top'|'bottom'`, `not:'A'`, `near:'B'`, `far:'O'`.
 - `hidden` (niveau ou figure) : points qui définissent un objet donné sans être visibles (ex. centre d'un cercle donné).
 
@@ -83,6 +90,11 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 - Garde-fous testés : voir les règles non négociables 8 à 12.
 - Mode test dans le jeu : 5 tapes sur le numéro de version (écran « Chapitres ») ouvrent tous les niveaux ; 5 de plus referment. Rien n'est enregistré pendant ce mode.
 
+### Idées et « Pourquoi ? »
+- Idée : une ou deux phrases courtes, vocabulaire du collège, sans nommer de point invisible ni d'outil. Gratuite, montrée une fois par essai, seulement si l'indice suit la ref épinglée.
+- « Pourquoi ? » : bouton de la fiche de réussite (niveaux qui ont `pourquoi`). Rejoue la ref épinglée puis l'explique, une étape par tape, avec des formes façon Byrne (`seg`, `angle`, `droit`, `poly`, `point`) ; « Voici une façon de le voir. » si la construction du joueur diffère. Rend ensuite sa construction au joueur.
+- Après une modification : `node tools/idees.js` (contrôle) puis `node tools/idees.js --doc`.
+
 ### Chapitres (`src/chapters.js`)
 - Un chapitre : `id`, `numero`, `titre`, `idee` (une phrase), `niveaux` (requis, dans l'ordre), `defi` (optionnel, en dernier).
 - Le chapitre suivant s'ouvre quand les niveaux requis du précédent sont réussis ; le défi n'est jamais requis. Dans un chapitre, chaque niveau requis ouvre le suivant ; le défi s'ouvre avec le dernier niveau requis.
@@ -99,13 +111,14 @@ python3 tools/make-icons.py   # régénère les icônes (Pillow)
 3. **Pas de chrono, jamais.** La seule contrainte est le nombre de coups (`par + extra`). Annuler et effacer sont gratuits.
 4. **Réussir ≠ maîtriser** : réussir (même avec des coups en marge) suffit pour avancer ; l'étoile récompense le minimum sans indice et n'est jamais requise pour progresser.
 5. **Enseigner avant d'exiger** : chaque astuce apparaît d'abord dans un niveau facile ; chaque construction réussie peut devenir un outil.
-6. **Indices progressifs** (points utiles → outil → tracé), un niveau aidé ne donne pas l'étoile.
+6. **Indices progressifs en 4 paliers** (idée → points utiles → outil → tracé). L'idée donne le principe sans désigner de point ni d'outil, et ne coûte pas l'étoile ; dès le palier 2, le niveau est aidé et ne donne pas l'étoile.
 7. **Mesurer la difficulté plutôt que la deviner** (voir feuille de route).
 8. **Pas de doublon** (chapitres en fiches) : jamais deux fois la même cible du catalogue à la suite ; une cible ne revient dans un chapitre que si l'autre version apporte autre chose — d'autres outils, ou un score supérieur d'au moins 1,5 — et au plus 2 fois.
 9. **Pas de point décoratif** : chaque point de départ visible sert à l'objectif ou à au moins une solution minimale.
 10. **Le défi est le niveau le plus dur de son chapitre** (score strictement le plus haut), et il n'est jamais requis.
 11. **Enseigner dans l'ordre** : aucun niveau avant ses prérequis (`apres`).
 12. **Une mise à jour ne referme jamais un chapitre ouvert**, ni un niveau déjà réussi (testé).
+13. **Chaque idée et chaque explication s'appuie sur des faits vérifiés par un test** (`tests/explications.test.js`).
 
 ## Conventions
 
