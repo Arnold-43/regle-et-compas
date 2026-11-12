@@ -41,6 +41,7 @@ export function empreinte(lv) {
   return hash(JSON.stringify({
     pts: lv.pts, given: lv.given, hidden: lv.hidden || [], tools: lv.tools, objectif: lv.objectif || null,
     cible: lv.target(lv.pts).map((alt) => alt.map(geo)),
+    ...(lv.contraintes ? { contraintes: lv.contraintes } : {}),
   }));
 }
 

@@ -191,11 +191,25 @@ export function scaleOf(G) {
   for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) m = Math.max(m, dist(ps[i], ps[j]));
   return m;
 }
-function perturb(G, amp, rand) {
+function perturb(G, amp, rand, contraintes) {
   const Q = {};
   for (const k of Object.keys(G)) {
     const a = rand() * Math.PI * 2, r = amp * (0.3 + 0.7 * rand());
     Q[k] = [G[k][0] + Math.cos(a) * r, G[k][1] + Math.sin(a) * r];
+  }
+  return contraindre(Q, contraintes);
+}
+/**
+ * Contraintes d'une figure de départ, gardées quand on la déforme : {S: {surCercle: ['O', 'R']}} replace S
+ * sur le cercle de centre O passant par R (un point « sur le cercle » doit y rester).
+ */
+export function contraindre(Q, contraintes) {
+  if (!contraintes) return Q;
+  for (const [id, c] of Object.entries(contraintes)) {
+    if (c.surCercle) {
+      const O = Q[c.surCercle[0]], r = dist(O, Q[c.surCercle[1]]), u = unit(sub(Q[id], O));
+      Q[id] = add(O, mul(u, r));
+    }
   }
   return Q;
 }
@@ -209,7 +223,7 @@ export function verify(level, specs, seed = 20261107) {
   let valid = 0, tries = 0;
   while (valid < 6 && tries < 40) {
     tries++;
-    const Q = perturb(level.pts, amp, rand);
+    const Q = perturb(level.pts, amp, rand, level.contraintes);
     const b = build(level, Q, specs);
     if (!b.ok) continue;
     valid++;
