@@ -21,6 +21,7 @@ import { FICHES, depuisFiche } from '../src/fiches.js';
 import { explore, cadre, ZOOM_MIN } from './explore.js';
 import { boiteFigure, occupation, CANEVAS } from './occupation.js';
 import { mesuresDe, auxiliaires } from './metrics.js';
+import { EXPLICATIONS } from '../src/explications.js';
 
 const FICHIER = new URL('../src/certificats.js', import.meta.url);
 
@@ -185,7 +186,18 @@ export function certifierFiche(f, { limiteMs }) {
   if (!parAlt.size) return rejet('aucune solution minimale sans coïncidence');
   const deco = pointsDecoratifs(lv0, [...rt.solutions.values()]);
   if (deco.length) return rejet(`point décoratif : ${deco.join(', ')} ne sert ni à l'objectif ni à aucune solution minimale`);
-  const solutions = [...parAlt.entries()].sort((x, y) => x[0] - y[0]).map(([, v]) => v.specs);
+  // La solution épinglée de l'explication (src/explications.js) est toujours gardée, en tête des refs.
+  const ex = EXPLICATIONS[f.id];
+  let epingle = null;
+  if (ex && ex.ref) {
+    const sp = refToSpecs(lv0, ex.ref);
+    const b = sp && build(lv0, lv0.pts, sp), a = b ? solvedIn(lv0, lv0.pts, b) : -1;
+    if (a < 0 || sp.length !== min || !verify(lv0, sp).ok) return rejet('la solution épinglée de l’explication n’est pas une solution minimale');
+    epingle = { alt: a, specs: sp };
+    parAlt.delete(a);
+  }
+  const autres = [...parAlt.entries()].sort((x, y) => x[0] - y[0]).map(([, v]) => v.specs);
+  const solutions = epingle ? [epingle.specs, ...autres] : autres;
   const view = cadrage(lv0, solutions, alts);
   const boite = cadre(view);
   let rc;
@@ -197,9 +209,10 @@ export function certifierFiche(f, { limiteMs }) {
   const m = mesuresDe(lv0, cibleN, rc, rt, lv0.tools, boite);
   const cert = {
     ...base, par: min, minCadre: rc.min, nbSolutions: rt.solutions.size, score: arrondi(m.score),
-    refs: solutions.map(versRefs), view, lab: lettres(lv0, solutions), ghostAlt: [...parAlt.keys()].sort()[0],
+    refs: epingle ? [ex.ref, ...autres.map(versRefs)] : autres.map(versRefs), view, lab: lettres(lv0, solutions),
+    ghostAlt: epingle ? epingle.alt : [...parAlt.keys()].sort()[0],
     mesures: { premier: arrondi(m.premier), goulotLibre: arrondi(m.goulotLibre), auxMin: m.auxMin, occupation: arrondi(occupation(lv0, view)) },
-    refsHorsVue: [...parAlt.values()].filter((v) => !v.vue).length,
+    refsHorsVue: [...parAlt.values()].filter((v) => !v.vue).length + (epingle && !dansVue(epingle.specs) ? 1 : 0),
   };
   // vérifications de bout en bout sur le niveau construit
   const lv = depuisFiche(f, cert);
